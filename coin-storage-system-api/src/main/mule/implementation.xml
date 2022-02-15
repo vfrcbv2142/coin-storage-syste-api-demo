@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:mongo="http://www.mulesoft.org/schema/mule/mongo"
+	xmlns:xml-module="http://www.mulesoft.org/schema/mule/xml-module" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/xml-module http://www.mulesoft.org/schema/mule/xml-module/current/mule-xml-module.xsd
+http://www.mulesoft.org/schema/mule/mongo http://www.mulesoft.org/schema/mule/mongo/current/mule-mongo.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<sub-flow name="updateCoinSubFlow" doc:id="80e74fda-c5c9-4403-8cbd-14808c746dd3" >
+		<validation:is-not-null doc:name="Is not null" doc:id="3030ed75-d4fa-4dd7-b1a0-03b30eff267a" value="#[payload.headers[0].documentID]" message="documentID is null"/>
+		<set-variable value="#[payload.headers[0].documentID]" doc:name="documentID" doc:id="b6f6e9a0-d39a-4a8e-af4a-94103802e7ad" variableName="documentID"/>
+		<choice doc:name="Choice" doc:id="fc920873-7357-4664-a0b9-8ded5999dffa" >
+			<when expression='#[((keysOf(payload.body.updateCoin)) map ($ as String)) contains  "date"]'>
+				<xml-module:validate-schema doc:name="Validate schema" doc:id="1c5c177d-8f27-4a16-93dd-14ed7f741570" schemas="schemas\updateCoinWithInformation.xsd" >
+					<xml-module:content ><![CDATA[#[payload.body]]]></xml-module:content>
+				</xml-module:validate-schema>
+				<ee:transform doc:name="XML to JSON" doc:id="1eecd060-e594-4817-942c-96d1a3318657">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	date: payload.body.updateCoin.date,
+	data: payload.body.updateCoin.data.*coin map (object, index) -> {
+		name: object.name,
+		symbol: object.symbol,
+		supply: object.supply,
+		developmentStatus: object.developmentStatus,
+		proofType: object.proofType,
+		orgStructure: object.orgStructure,
+		'coin_market_price': object.'coin_market_price',
+		'coin_cap_price': object.'coin_cap_price',
+		'coin_market_volume24h': object.'coin_market_volume24h',
+		'coin_cap_volume24h':object.'coin_cap_volume24h'
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+				<mongo:update-documents collectionName="myFirstCollection" doc:name="Update documents" doc:id="407418ac-deab-4709-a9c6-c91d4e0815a2" config-ref="MongoDB_Config">
+			<mongo:query><![CDATA[#[output application/json
+---
+{
+    "_id" : {"\$oid" : vars.documentID}
+}]]]></mongo:query>
+		</mongo:update-documents>
+			</when>
+			<otherwise >
+				<xml-module:validate-schema doc:name="Validate schema" doc:id="f5305b1c-a8cb-4d04-afac-f2cca0bb78ce" schemas="schemas\updateCoinWithNewPrice.xsd">
+					<xml-module:content ><![CDATA[#[payload.body]]]></xml-module:content>
+				</xml-module:validate-schema>
+				<ee:transform doc:name="XML to JSON" doc:id="11bb8966-606a-4f90-9a3a-6902e2f0c6c9" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	oldDate: payload.body.updateCoin.oldDate,
+	newDate: payload.body.updateCoin.newDate,
+	dateDifference: payload.body.updateCoin.dateDifference,
+	data: payload.body.updateCoin.data.*coin map (object, index) -> {
+		name: object.name,
+		symbol: object.symbol,
+		supply: object.supply,
+		developmentStatus: object.developmentStatus,
+		proofType: object.proofType,
+		orgStructure: object.orgStructure,
+		'coin_market_oldPriceUsd': object.'coin_market_oldPriceUsd',
+		'coin_cap_oldPriceUsd': object.'coin_cap_oldPriceUsd',
+		'coin_market_newPriceUsd': object.'coin_market_newPriceUsd',
+		'coin_cap_newPriceUsd': object.'coin_cap_newPriceUsd',
+		'coin_market_priceDifference': object.'coin_market_priceDifference',
+		'coin_cap_priceDifference': object.'coin_cap_priceDifference',
+		'coin_market_volume24h': object.'coin_market_volume24h',
+		'coin_cap_volume24h':object.'coin_cap_volume24h'
+	}
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<try doc:name="Try" doc:id="b69ca1fb-5451-4802-afeb-f32ac27156da" >
+					<mongo:execute-command doc:name="Execute command" doc:id="710f067c-7cb5-4d3b-953a-0c9a5b4981ca" config-ref="MongoDB_Config">
+					<mongo:command><![CDATA[#[output application/json
+---
+{
+  "aggregate": "myFirstCollection",
+  "pipeline": [
+  		{
+  		"\$match": {
+ 					"_id": {"\$oid": vars.documentID}
+				}
+		}, 
+		{
+		"\$set": payload
+		},
+		{
+		"\$unset": "date" 
+		},
+		{
+		"\$merge": {
+        		into: 'myFirstCollection',
+        		on: '_id',
+        		whenMatched: 'replace'
+    			}
+    	}
+	],
+  cursor: {}
+}]]]></mongo:command>
+				</mongo:execute-command>
+					<error-handler >
+						<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="151406d8-7e2e-4c24-80cc-b39c97bff671" type="ANY" when='#[error.description contains("java.lang.IllegalArgumentException: invalid hexadecimal representation of an ObjectId:")]'>
+							<set-payload value="#[output application/json
+&#10;---
+&#10;{
+&#10;	matched: 0
+&#10;}]" doc:name="Set Payload" doc:id="314a1517-4648-4cde-b156-1bdfc60bb56e" />
+						</on-error-continue>
+					</error-handler>
+				</try>
+			</otherwise>
+		</choice>
+		<set-payload value="#[output application/xml
+&#10;ns ns0 http://training.mulesoft.com/
+&#10;---
+&#10;if (payload.matched == 0)
+&#10;	ns0#updateCoinResponse:{
+&#10;		response: &quot;document with id='&quot;++ vars.documentID ++&quot;' doesn't exist&quot;
+&#10;		}
+&#10;else
+&#10;	ns0#updateCoinResponse:{
+&#10;		response: &quot;document was updated successfully&quot;
+&#10;		}]" doc:name="success or not" doc:id="3772832a-8d05-4eb2-a1f6-ee2710dc8638" />
+	
+</sub-flow>
+	<sub-flow name="deleteCoinSubFlow" doc:id="93f47f6f-82ae-4196-9ea7-d76a28f20528" >
+		<validation:is-not-null doc:id="e130c722-8cb3-450d-ab8e-972409967bef" value="#[payload.headers[0].documentID]" message="documentID is null"/>
+		<set-variable value="#[payload.headers[0].documentID]" doc:name="documentID" doc:id="68bed030-ae8d-4894-b280-79ae1047471e" variableName="documentID"/>
+		<mongo:remove-documents collectionName="myFirstCollection" doc:name="Remove documents" doc:id="722e9d6e-5a23-41b5-aade-0fab74038cde" config-ref="MongoDB_Config">
+			<mongo:query ><![CDATA[#[output application/json
+---
+{
+    "_id" : {"\$oid" : payload.headers[0].documentID}
+}]]]></mongo:query>
+		</mongo:remove-documents>
+		<set-payload value="#[output application/xml
+&#10;ns ns0 http://training.mulesoft.com/
+&#10;---
+&#10;if (payload == 0)
+&#10;	ns0#deleteCoinResponse:{
+&#10;		response: &quot;document with id='&quot;++ vars.documentID ++&quot;' doesn't exist&quot;
+&#10;		}
+&#10;else
+&#10;	ns0#deleteCoinResponse:{
+&#10;		response: &quot;document was deleted successfully&quot;
+&#10;		}]" doc:name="success or not" doc:id="0ddc1c07-7f68-46f4-951c-24321f0e5859" />
+	
+</sub-flow>
+</mule>
