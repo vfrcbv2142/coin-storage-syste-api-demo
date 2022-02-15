@@ -5,7 +5,7 @@
             <http:response statusCode="#[attributes.additionalTransportData.statusCode default 200]">
                 <http:headers><![CDATA[#[attributes.protocolHeaders default {}]]]></http:headers>
             </http:response>
-            <http:error-response statusCode="#[attributes.additionalTransportData.statusCode default 500]">
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
                 <http:body><![CDATA[#[payload]]]></http:body>
                 <http:headers><![CDATA[#[attributes.protocolHeaders default {}]]]></http:headers>
             </http:error-response>
@@ -20,51 +20,21 @@
                   queryString: attributes.queryString
             }]]]></apikit-soap:attributes>
         </apikit-soap:router>
+		<error-handler ref="globalErrorHandler" />
     </flow>
     <flow name="createCoin:\soapkit-config">
-		<flow-ref doc:name="Flow Reference" doc:id="0732e86f-1090-4f23-9920-bcd1dabea594" name="createCoinSubFlow"/>
+		  <flow-ref doc:name="Flow Reference" doc:id="0732e86f-1090-4f23-9920-bcd1dabea594" name="createCoinSubFlow"/>
     </flow>
     <flow name="readCoin:\soapkit-config">
         <flow-ref doc:name="Flow Reference" doc:id="7a2cff23-5302-4ed2-817d-e22d02ebd058" name="readCoinSubFlow"/>
     </flow>
     <flow name="updateCoin:\soapkit-config">
-        <ee:transform>
-            <ee:message>
-                <ee:set-payload>
-                    <![CDATA[%dw 2.0
-output application/java
-ns soap http://schemas.xmlsoap.org/soap/envelope
----
-{
-    body: {
-        soap#Fault: {
-            faultcode: "soap:Server",
-            faultstring: "Operation [updateCoin:\soapkit-config] not implemented"
-        }
-    } write "application/xml"
-}]]>
-                </ee:set-payload>
-            </ee:message>
-        </ee:transform>
+		    <flow-ref doc:name="Flow Reference" doc:id="ce4da834-703d-422a-a3c9-77af8df5a3d2" name="updateCoinSubFlow"/>
+		<error-handler ref="globalErrorHandler" />
     </flow>
+   
     <flow name="deleteCoin:\soapkit-config">
-        <ee:transform>
-            <ee:message>
-                <ee:set-payload>
-                    <![CDATA[%dw 2.0
-output application/java
-ns soap http://schemas.xmlsoap.org/soap/envelope
----
-{
-    body: {
-        soap#Fault: {
-            faultcode: "soap:Server",
-            faultstring: "Operation [deleteCoin:\soapkit-config] not implemented"
-        }
-    } write "application/xml"
-}]]>
-                </ee:set-payload>
-            </ee:message>
-        </ee:transform>
+		    <flow-ref doc:name="Flow Reference" doc:id="25e8dc1f-8f83-4312-8937-04b44c0f46b2" name="deleteCoinSubFlow"/>
+		<error-handler ref="globalErrorHandler" />
     </flow>
 </mule>
