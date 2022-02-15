@@ -1,176 +1,176 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-  xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:http="http://www.mulesoft.org/schema/mule/http"
-  xmlns:apikit-soap="http://www.mulesoft.org/schema/mule/apikit-soap"
-  xmlns:mongo="http://www.mulesoft.org/schema/mule/mongo" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:apikit-soap="http://www.mulesoft.org/schema/mule/apikit-soap"
+	xmlns:mongo="http://www.mulesoft.org/schema/mule/mongo" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/mongo http://www.mulesoft.org/schema/mule/mongo/current/mule-mongo.xsd
 http://www.mulesoft.org/schema/mule/apikit-soap http://www.mulesoft.org/schema/mule/apikit-soap/current/mule-apikit-soap.xsd
 http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-  <http:listener-config name="api-httpListenerConfig">
+	<http:listener-config name="api-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="8081"/>
     </http:listener-config>
-  <apikit-soap:config name="soapkit-config" doc:name="APIKit for SOAP Configuration" doc:id="bb3d3cc4-ab12-4b56-a60b-c73d65f4b601" wsdlLocation="CoinStorageService.wsdl" service="CoinStorageService" port="CoinStorageServiceSOAP"/>
-  <configuration-properties doc:name="Configuration properties" doc:id="521e2197-121e-430e-a0a6-a257061bf8ec" file="config\local-decrypt-properties.yaml" />
-  <mongo:config name="MongoDB_Config" doc:name="MongoDB Config" doc:id="f0274f98-aed2-4221-a095-00029fc1a13d" >
-    <mongo:connection-string-connection connectionString="mongodb+srv://vfrcbv2142:vfrcbv2142@cluster0.6tkgj.mongodb.net/myFirstDatabase?retryWrites=true&amp;w=majority" />
-  </mongo:config>
-  <configuration doc:name="Configuration" doc:id="4522c2f5-b42e-4dcc-b805-41818ac03264" defaultErrorHandler-ref="globalErrorHandler" />
-  <error-handler name="globalErrorHandler" doc:id="d468bd87-245e-4bde-b466-b60130197e82" >
-    <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="27f6a016-7498-4b9d-9036-46707b3185fe" type="HTTP:BAD_REQUEST, XML-MODULE:SCHEMA_NOT_HONOURED, VALIDATION:NULL">
-      <ee:transform doc:name="400 error + httpStatus" doc:id="ac302172-5208-4dd6-86c8-c3cbf0e3328f" >
-        <ee:message >
-          <ee:set-payload ><![CDATA[%dw 2.0
+	<apikit-soap:config name="soapkit-config" doc:name="APIKit for SOAP Configuration" doc:id="4b74fec0-11b3-4d46-9384-988b27c0a02e" wsdlLocation="CoinStorageService.wsdl" service="CoinStorageService" port="CoinStorageServiceSOAP"/>
+	<configuration-properties doc:name="Configuration properties" doc:id="11f397ae-d35b-43c5-a3e3-e920708ebdf0" file="config/${mule_env}-decrypt-properties.yaml" />
+	<mongo:config name="MongoDB_Config" doc:name="MongoDB Config" doc:id="d4722abc-d96b-4e77-b4aa-2ed3f3eee5d3" >
+		<mongo:connection-string-connection connectionString="mongodb+srv://vfrcbv2142:vfrcbv2142@cluster0.6tkgj.mongodb.net/myFirstDatabase?retryWrites=true&amp;w=majority" />
+	</mongo:config>
+	<configuration doc:name="Configuration" doc:id="c69df2cf-4a53-43ee-896d-629fe6fba5ee" defaultErrorHandler-ref="globalErrorHandler" />
+	<error-handler name="globalErrorHandler" doc:id="662e5c12-6fb5-4cf6-a21c-72e2b5f98703" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e82d4212-d44c-49e1-a4e2-9e215332742f" type="HTTP:BAD_REQUEST, XML-MODULE:SCHEMA_NOT_HONOURED, VALIDATION:NULL">
+			<ee:transform doc:name="400 error + httpStatus" doc:id="e23b35ce-8d78-4d93-9785-fe03add2f68f" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
 output application/xml
 ---
 fault:{
-  statusCode: 400,
-  errorType: (error.errorType.namespace default "HTTP") ++ ":" 
-  ++ (error.errorType.identifier default "BAD_REQUEST"),
-  description: error.description,
-  date: now()
+	statusCode: 400,
+	errorType: (error.errorType.namespace default "HTTP") ++ ":" 
+	++ (error.errorType.identifier default "BAD_REQUEST"),
+	description: error.description,
+	date: now()
 }]]></ee:set-payload>
-        </ee:message>
-        <ee:variables >
-          <ee:set-variable variableName="httpStatus" ><![CDATA[400]]></ee:set-variable>
-        </ee:variables>
-      </ee:transform>
-    </on-error-propagate>
-    <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="afd98492-12d8-4d72-99f8-bf5522ed6563" type="HTTP:UNAUTHORIZED">
-      <ee:transform doc:name="401 error + httpStatus" doc:id="0fa5731b-71f3-455e-ac04-5b6d4c681ff5" >
-        <ee:message >
-          <ee:set-payload ><![CDATA[%dw 2.0
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[400]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="7f881d97-7df6-4c40-9fd8-406caf41f1a2" type="HTTP:UNAUTHORIZED">
+			<ee:transform doc:name="401 error + httpStatus" doc:id="4c5e5fb5-66f3-4410-bc86-fca2a2d1b1b2" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
 output application/xml
 ---
 fault:{
-  statusCode: 401,
-  errorType: (error.errorType.namespace default "HTTP") ++ ":" 
-  ++ (error.errorType.identifier default "UNAUTHORIZED"),
-  description: error.description,
-  date: now()
+	statusCode: 401,
+	errorType: (error.errorType.namespace default "HTTP") ++ ":" 
+	++ (error.errorType.identifier default "UNAUTHORIZED"),
+	description: error.description,
+	date: now()
 }]]></ee:set-payload>
-        </ee:message>
-        <ee:variables >
-          <ee:set-variable variableName="httpStatus" ><![CDATA[401]]></ee:set-variable>
-        </ee:variables>
-      </ee:transform>
-    </on-error-propagate>
-    <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="c9698711-eb8d-4a91-bb5d-da49c2cee731" type="HTTP:FORBIDDEN">
-      <ee:transform doc:name="403 error + httpStatus" doc:id="5d596761-428f-49d7-9b32-e18a327b1e1d" >
-        <ee:message >
-          <ee:set-payload ><![CDATA[%dw 2.0
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[401]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="dcce165b-3c5f-4a78-a7f5-fa2ccc9cff93" type="HTTP:FORBIDDEN">
+			<ee:transform doc:name="403 error + httpStatus" doc:id="6092dce6-ac77-4f5b-a1c3-2570029e8995" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
 output application/xml
 ---
 fault:{
-  statusCode: 403,
-  errorType: (error.errorType.namespace default "HTTP") ++ ":" 
-  ++ (error.errorType.identifier default "FORBIDDEN"),
-  description: error.description,
-  date: now()
+	statusCode: 403,
+	errorType: (error.errorType.namespace default "HTTP") ++ ":" 
+	++ (error.errorType.identifier default "FORBIDDEN"),
+	description: error.description,
+	date: now()
 }]]></ee:set-payload>
-        </ee:message>
-        <ee:variables >
-          <ee:set-variable variableName="httpStatus" ><![CDATA[403]]></ee:set-variable>
-        </ee:variables>
-      </ee:transform>
-    </on-error-propagate>
-    <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="d0f45109-b482-44db-a1a0-ae1e2cc9e217" type="HTTP:NOT_FOUND">
-      <ee:transform doc:name="404 error + httpStatus" doc:id="9cd6b72d-e17f-484a-8a68-23806b2f1bfe" >
-        <ee:message >
-          <ee:set-payload ><![CDATA[%dw 2.0
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[403]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="768472ca-4780-48e5-aa9c-25cdce403480" type="HTTP:NOT_FOUND">
+			<ee:transform doc:name="404 error + httpStatus" doc:id="424c69cb-8188-40c7-8a5c-b2eb83f0a7ee" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
 output application/xml
 ---
 fault:{
-  statusCode: 404,
-  errorType: (error.errorType.namespace default "HTTP") ++ ":" 
-  ++ (error.errorType.identifier default "NOT_FOUND"),
-  description: error.description,
-  date: now()
+	statusCode: 404,
+	errorType: (error.errorType.namespace default "HTTP") ++ ":" 
+	++ (error.errorType.identifier default "NOT_FOUND"),
+	description: error.description,
+	date: now()
 }]]></ee:set-payload>
-        </ee:message>
-        <ee:variables >
-          <ee:set-variable variableName="httpStatus" ><![CDATA[404]]></ee:set-variable>
-        </ee:variables>
-      </ee:transform>
-    </on-error-propagate>
-    <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="f92f737f-3098-4a09-919e-b93a89f4f6d6" type="HTTP:TIMEOUT">
-      <ee:transform doc:name="408 error + httStatus" doc:id="969be07c-2c91-440d-9279-1ae98c3ae730" >
-        <ee:message >
-          <ee:set-payload ><![CDATA[%dw 2.0
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[404]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="c58b021b-7839-4262-899e-0552885a4a64" type="HTTP:TIMEOUT">
+			<ee:transform doc:name="408 error + httStatus" doc:id="6b4cff11-5ce9-4084-bfba-16e71f24378c" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
 output application/xml
 ---
 fault:{
-  statusCode: 404,
-  errorType: (error.errorType.namespace default "HTTP") ++ ":" 
-  ++ (error.errorType.identifier default "TIMEOUT"),
-  description: error.description,
-  date: now()
+	statusCode: 404,
+	errorType: (error.errorType.namespace default "HTTP") ++ ":" 
+	++ (error.errorType.identifier default "TIMEOUT"),
+	description: error.description,
+	date: now()
 }]]></ee:set-payload>
-        </ee:message>
-        <ee:variables >
-          <ee:set-variable variableName="httpStatus" ><![CDATA[408]]></ee:set-variable>
-        </ee:variables>
-      </ee:transform>
-    </on-error-propagate>
-    <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="ad029b21-977c-4035-81d9-cd3c0dc8ec47" type="HTTP:TOO_MANY_REQUESTS">
-      <ee:transform doc:name="429 error + httpStatus" doc:id="cb61e61f-cc26-4fa5-824b-97fc7907ace0" >
-        <ee:message >
-          <ee:set-payload ><![CDATA[%dw 2.0
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[408]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="ff5c4643-3b35-4ed4-ab16-25588811daf9" type="HTTP:TOO_MANY_REQUESTS">
+			<ee:transform doc:name="429 error + httpStatus" doc:id="53be6f2b-6f66-482d-b4d2-5aabc3dcee77" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
 output application/xml
 ---
 fault:{
-  statusCode: 429,
-  errorType: (error.errorType.namespace default "HTTP") ++ ":" 
-  ++ (error.errorType.identifier default "TOO_MANY_REQUESTS"),
-  description: error.description,
-  date: now()
+	statusCode: 429,
+	errorType: (error.errorType.namespace default "HTTP") ++ ":" 
+	++ (error.errorType.identifier default "TOO_MANY_REQUESTS"),
+	description: error.description,
+	date: now()
 }]]></ee:set-payload>
-        </ee:message>
-        <ee:variables >
-          <ee:set-variable variableName="httpStatus" ><![CDATA[429]]></ee:set-variable>
-        </ee:variables>
-      </ee:transform>
-    </on-error-propagate>
-    <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="21ea513b-0c8f-41bc-9d02-e708335b5001" type="HTTP:INTERNAL_SERVER_ERROR">
-      <ee:transform doc:name="500 error + httpStatus" doc:id="2a095095-e788-4e44-83ea-2096215b042c" >
-        <ee:message >
-          <ee:set-payload ><![CDATA[%dw 2.0
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[429]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="d6aed65b-2a77-4d6d-8902-90506c6843dd" type="HTTP:INTERNAL_SERVER_ERROR">
+			<ee:transform doc:name="500 error + httpStatus" doc:id="a880ae35-379c-4cc1-8a9d-df633bc72838" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
 output application/xml
 ---
 fault:{
-  statusCode: 500,
-  errorType: (error.errorType.namespace default "HTTP") ++ ":" 
-  ++ (error.errorType.identifier default "INTERNAL_SERVER_ERROR"),
-  description: error.description,
-  date: now()
+	statusCode: 500,
+	errorType: (error.errorType.namespace default "HTTP") ++ ":" 
+	++ (error.errorType.identifier default "INTERNAL_SERVER_ERROR"),
+	description: error.description,
+	date: now()
 }]]></ee:set-payload>
-        </ee:message>
-        <ee:variables >
-          <ee:set-variable variableName="htppStatus" ><![CDATA[500]]></ee:set-variable>
-        </ee:variables>
-      </ee:transform>
-    </on-error-propagate>
-    <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="01b2a79b-044d-4810-8795-c9d664d09bab" type="ANY">
-      <ee:transform doc:name="unknown error + httpStatus" doc:id="07a2e5ea-9e96-4fde-84ef-b0df58f72b95" >
-        <ee:message >
-          <ee:set-payload ><![CDATA[%dw 2.0
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="htppStatus" ><![CDATA[500]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="6ea3f3ff-77bb-44c1-a60e-2359d37e2593" type="ANY">
+			<ee:transform doc:name="unknown error + httpStatus" doc:id="0cfc249a-2c30-44c3-b731-b5feee141004" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
 output application/xml
 ---
 fault:{
-  statusCode: error.muleMessage.attributes.StatusCode default 500,
-  errorType: (error.errorType.namespace default "HTTP") ++ ":" 
-  ++ (error.errorType.identifier default "INTERNAL_SERVER_ERROR"),
-  description: error.description,
-  date: now()
+	statusCode: error.muleMessage.attributes.StatusCode default 500,
+	errorType: (error.errorType.namespace default "HTTP") ++ ":" 
+	++ (error.errorType.identifier default "INTERNAL_SERVER_ERROR"),
+	description: error.description,
+	date: now()
 }]]></ee:set-payload>
-        </ee:message>
-        <ee:variables >
-          <ee:set-variable variableName="htppStatus" ><![CDATA[error.muleMessage.attributes.StatusCode default 500]]></ee:set-variable>
-        </ee:variables>
-      </ee:transform>
-    </on-error-propagate>
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="htppStatus" ><![CDATA[error.muleMessage.attributes.StatusCode default 500]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</on-error-propagate>
 
-  </error-handler>
+	</error-handler>
 </mule>
