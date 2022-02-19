@@ -3,7 +3,9 @@
 	<xsd:element name="updateCoin">
       	<xsd:complexType>
       		<xsd:sequence>
-      			<xsd:element name="date" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
+      			<xsd:element name="oldDate" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
+      			<xsd:element name="newDate" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
+      			<xsd:element name="dateDifference" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       			<xsd:element name="data" type="tns:dataUpdate" maxOccurs="1" minOccurs="1"></xsd:element>
       		</xsd:sequence>
       	</xsd:complexType>
@@ -20,12 +22,15 @@
       		<xsd:element name="name" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       		<xsd:element name="symbol" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       		<xsd:element name="supply" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
-      		<xsd:element name="description" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       		<xsd:element name="developmentStatus" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       		<xsd:element name="proofType" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       		<xsd:element name="orgStructure" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
-      		<xsd:element name="coin_market_price" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
-      		<xsd:element name="coin_cap_price" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
+      		<xsd:element name="coin_market_price_oldPriceUsd" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
+      		<xsd:element name="coin_cap_price_oldPriceUsd" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
+      		<xsd:element name="coin_market_price_newPriceUsd" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
+      		<xsd:element name="coin_cap_price_newPriceUsd" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
+      		<xsd:element name="coin_market_price_priceDifference" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
+      		<xsd:element name="coin_cap_price_priceDifference" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       		<xsd:element name="coin_market_volume24h" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       		<xsd:element name="coin_cap_volume24h" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       	</xsd:sequence>

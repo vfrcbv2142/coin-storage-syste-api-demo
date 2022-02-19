@@ -22,15 +22,16 @@
       		<xsd:element name="name" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       		<xsd:element name="symbol" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       		<xsd:element name="supply" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
+      		<xsd:element name="description" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       		<xsd:element name="developmentStatus" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       		<xsd:element name="proofType" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       		<xsd:element name="orgStructure" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
-      		<xsd:element name="coin_market_price_oldPriceUsd" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
-      		<xsd:element name="coin_cap_price_oldPriceUsd" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
-      		<xsd:element name="coin_market_price_newPriceUsd" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
-      		<xsd:element name="coin_cap_price_newPriceUsd" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
-      		<xsd:element name="coin_market_price_priceDifference" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
-      		<xsd:element name="coin_cap_price_priceDifference" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
+      		<xsd:element name="coin_market_oldPriceUsd" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
+      		<xsd:element name="coin_cap_oldPriceUsd" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
+      		<xsd:element name="coin_market_newPriceUsd" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
+      		<xsd:element name="coin_cap_newPriceUsd" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
+      		<xsd:element name="coin_market_priceDifference" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
+      		<xsd:element name="coin_cap_priceDifference" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       		<xsd:element name="coin_market_volume24h" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       		<xsd:element name="coin_cap_volume24h" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       	</xsd:sequence>
