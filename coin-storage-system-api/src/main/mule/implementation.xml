@@ -6,15 +6,20 @@ http://www.mulesoft.org/schema/mule/xml-module http://www.mulesoft.org/schema/mu
 http://www.mulesoft.org/schema/mule/mongo http://www.mulesoft.org/schema/mule/mongo/current/mule-mongo.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
-	<sub-flow name="updateCoinSubFlow" doc:id="80e74fda-c5c9-4403-8cbd-14808c746dd3" >
-		<validation:is-not-null doc:name="Is not null" doc:id="3030ed75-d4fa-4dd7-b1a0-03b30eff267a" value="#[payload.headers[0].documentID]" message="documentID is null"/>
-		<set-variable value="#[payload.headers[0].documentID]" doc:name="documentID" doc:id="b6f6e9a0-d39a-4a8e-af4a-94103802e7ad" variableName="documentID"/>
-		<choice doc:name="Choice" doc:id="fc920873-7357-4664-a0b9-8ded5999dffa" >
+	<sub-flow name="updateCoinSubFlow" doc:id="c86d133a-0318-4fe2-8521-ee38cd3b2473" >
+		<validation:is-not-null doc:name="Is not null documentID" doc:id="ca94d54e-d446-44d0-9de8-dd3ef683836f" value="#[ns ns0 http://training.mulesoft.com/
+&#10;---
+&#10;payload.headers.updateCoinHeader.ns0#updateCoinHeader.documentID]" message="documentID is null"/>
+		<set-variable value="#[ns ns0 http://training.mulesoft.com/
+&#10;---
+&#10;payload.headers.updateCoinHeader.ns0#updateCoinHeader.documentID]" doc:name="documentID" doc:id="d8f3d160-401a-4e8d-b2eb-73ff5576416b" variableName="documentID"/>
+		<validation:validate-size doc:name="Validate size documentID" doc:id="d2f8d994-2e5e-4a7d-a160-769fd6724e93" value="#[vars.documentID]" min="24" max="24" message="#[&quot;invalid hexadecimal representation of an ObjectId: '&quot; ++ vars.documentID ++ &quot;'&quot;]" />
+		<choice doc:name="Choice" doc:id="577c2250-ed52-4e9d-953d-ac68f30c83b2" >
 			<when expression='#[((keysOf(payload.body.updateCoin)) map ($ as String)) contains  "date"]'>
-				<xml-module:validate-schema doc:name="Validate schema" doc:id="1c5c177d-8f27-4a16-93dd-14ed7f741570" schemas="schemas\updateCoinWithInformation.xsd" >
+				<xml-module:validate-schema doc:name="Validate schema" doc:id="6fb1e088-1822-429b-a8ed-108785d1ce23" schemas="schemas\updateCoinWithInformation.xsd" >
 					<xml-module:content ><![CDATA[#[payload.body]]]></xml-module:content>
 				</xml-module:validate-schema>
-				<ee:transform doc:name="XML to JSON" doc:id="1eecd060-e594-4817-942c-96d1a3318657">
+				<ee:transform doc:name="XML to JSON" doc:id="c3d763ca-cec3-4bd7-86fe-4e1e426e4470">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -25,6 +30,7 @@ output application/json
 		name: object.name,
 		symbol: object.symbol,
 		supply: object.supply,
+		description: object.description,
 		developmentStatus: object.developmentStatus,
 		proofType: object.proofType,
 		orgStructure: object.orgStructure,
@@ -36,7 +42,7 @@ output application/json
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-				<mongo:update-documents collectionName="myFirstCollection" doc:name="Update documents" doc:id="407418ac-deab-4709-a9c6-c91d4e0815a2" config-ref="MongoDB_Config">
+				<mongo:update-documents collectionName="myFirstCollection" doc:name="Update documents" doc:id="9cd77aeb-d7fe-486e-9701-c9ffb2514599" config-ref="MongoDB_Config">
 			<mongo:query><![CDATA[#[output application/json
 ---
 {
@@ -45,10 +51,10 @@ output application/json
 		</mongo:update-documents>
 			</when>
 			<otherwise >
-				<xml-module:validate-schema doc:name="Validate schema" doc:id="f5305b1c-a8cb-4d04-afac-f2cca0bb78ce" schemas="schemas\updateCoinWithNewPrice.xsd">
+				<xml-module:validate-schema doc:name="Validate schema" doc:id="ae33bd00-abc3-4e88-967b-7bb1a864173c" schemas="schemas\updateCoinWithNewPrice.xsd">
 					<xml-module:content ><![CDATA[#[payload.body]]]></xml-module:content>
 				</xml-module:validate-schema>
-				<ee:transform doc:name="XML to JSON" doc:id="11bb8966-606a-4f90-9a3a-6902e2f0c6c9" >
+				<ee:transform doc:name="XML to JSON" doc:id="50bbdf5b-0030-4fc8-b18d-3fb80185e99f" >
 					<ee:message >
 						<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -61,6 +67,7 @@ output application/json
 		name: object.name,
 		symbol: object.symbol,
 		supply: object.supply,
+		description: object.description,
 		developmentStatus: object.developmentStatus,
 		proofType: object.proofType,
 		orgStructure: object.orgStructure,
@@ -76,8 +83,8 @@ output application/json
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
-				<try doc:name="Try" doc:id="b69ca1fb-5451-4802-afeb-f32ac27156da" >
-					<mongo:execute-command doc:name="Execute command" doc:id="710f067c-7cb5-4d3b-953a-0c9a5b4981ca" config-ref="MongoDB_Config">
+				<try doc:name="Try" doc:id="ddaeac9b-ee4b-40d7-939e-7a50f0223a66" >
+					<mongo:execute-command doc:name="Execute command" doc:id="b5c4b775-6d2f-42af-b40b-8d1b63f49809" config-ref="MongoDB_Config">
 					<mongo:command><![CDATA[#[output application/json
 ---
 {
@@ -106,65 +113,82 @@ output application/json
 }]]]></mongo:command>
 				</mongo:execute-command>
 					<error-handler >
-						<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="151406d8-7e2e-4c24-80cc-b39c97bff671" type="ANY" when='#[error.description contains("java.lang.IllegalArgumentException: invalid hexadecimal representation of an ObjectId:")]'>
-							<set-payload value="#[output application/json
-&#10;---
-&#10;{
-&#10;	matched: 0
-&#10;}]" doc:name="Set Payload" doc:id="314a1517-4648-4cde-b156-1bdfc60bb56e" />
+						<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="665a5343-1c53-4178-b21a-8f43916f4b5a" type="ANY" when='#[error.description contains("java.lang.IllegalArgumentException: invalid hexadecimal representation of an ObjectId:")]'>
+							<set-payload value="#[output application/json&#10;---&#10;{&#10;	matched: 0&#10;}]" doc:name="Set Payload" doc:id="b714317c-07cc-48dd-b7fd-63ddc6fceadf" />
 						</on-error-continue>
 					</error-handler>
 				</try>
 			</otherwise>
 		</choice>
-		<set-payload value="#[output application/xml
-&#10;ns ns0 http://training.mulesoft.com/
-&#10;---
-&#10;if (payload.matched == 0)
-&#10;	ns0#updateCoinResponse:{
-&#10;		response: &quot;document with id='&quot;++ vars.documentID ++&quot;' doesn't exist&quot;
-&#10;		}
-&#10;else
-&#10;	ns0#updateCoinResponse:{
-&#10;		response: &quot;document was updated successfully&quot;
-&#10;		}]" doc:name="success or not" doc:id="3772832a-8d05-4eb2-a1f6-ee2710dc8638" />
+		<ee:transform doc:name="success or not result + httpStatus" doc:id="3cf55c14-918a-4d5f-8f64-9af8b4c62c85" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[output application/xml
+ns ns0 http://training.mulesoft.com/
+---
+if (payload.matched == 0)
+	ns0#updateCoinResponse:{
+		response: "document with id='"++ vars.documentID ++"' doesn't exist"
+		}
+else
+	ns0#updateCoinResponse:{
+		response: "document was updated successfully"
+		}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="httpStatus" ><![CDATA[201]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="188bf084-883f-4811-a527-6649120df82f" message="#[payload]"/>
 	
+
 </sub-flow>
-	<sub-flow name="deleteCoinSubFlow" doc:id="93f47f6f-82ae-4196-9ea7-d76a28f20528" >
-		<validation:is-not-null doc:id="e130c722-8cb3-450d-ab8e-972409967bef" value="#[payload.headers[0].documentID]" message="documentID is null"/>
-		<set-variable value="#[payload.headers[0].documentID]" doc:name="documentID" doc:id="68bed030-ae8d-4894-b280-79ae1047471e" variableName="documentID"/>
-		<mongo:remove-documents collectionName="myFirstCollection" doc:name="Remove documents" doc:id="722e9d6e-5a23-41b5-aade-0fab74038cde" config-ref="MongoDB_Config">
+	<sub-flow name="deleteCoinSubFlow" doc:id="16698392-7802-4b87-acdf-ff8ebf5cbbf5" >
+		<validation:is-not-null doc:id="dfe7df14-6ac8-4a83-af92-89c800311cc2" value='#[ns ns0 http://training.mulesoft.com/
+&#10;---
+&#10;payload.headers.deleteCoinHeader.ns0#deleteCoinHeader.documentID]' message="documentID is null" doc:name="Is not null documentID"/>
+		<set-variable value="#[ns ns0 http://training.mulesoft.com/
+&#10;---
+&#10;payload.headers.deleteCoinHeader.ns0#deleteCoinHeader.documentID]" doc:name="documentID" doc:id="d3f8e7d8-7c51-4799-a00d-eb95abe7103b" variableName="documentID" />
+		<validation:validate-size doc:name="Validate size documentID" doc:id="0ec266b4-fab7-4015-abd2-22681f18f268" message="#[&quot;invalid hexadecimal representation of an ObjectId: '&quot; ++ vars.documentID ++ &quot;'&quot;]" value="#[vars.documentID]" min="24" max="24"/>
+		<mongo:remove-documents collectionName="myFirstCollection" doc:name="Remove documents" doc:id="0ace5dbf-682e-4265-8fbd-81f200f9bb95" config-ref="MongoDB_Config">
 			<mongo:query ><![CDATA[#[output application/json
 ---
 {
-    "_id" : {"\$oid" : payload.headers[0].documentID}
+    "_id" : {"\$oid" : vars.documentID}
 }]]]></mongo:query>
 		</mongo:remove-documents>
-		<set-payload value="#[output application/xml
-&#10;ns ns0 http://training.mulesoft.com/
-&#10;---
-&#10;if (payload == 0)
-&#10;	ns0#deleteCoinResponse:{
-&#10;		response: &quot;document with id='&quot;++ vars.documentID ++&quot;' doesn't exist&quot;
-&#10;		}
-&#10;else
-&#10;	ns0#deleteCoinResponse:{
-&#10;		response: &quot;document was deleted successfully&quot;
-&#10;		}]" doc:name="success or not" doc:id="0ddc1c07-7f68-46f4-951c-24321f0e5859" />
+		<ee:transform doc:name="success or not result + httpStatus" doc:id="196c911e-d99a-417c-aa00-162541d7e09e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[output application/xml
+ns ns0 http://training.mulesoft.com/
+---
+if (payload == 0)
+	ns0#deleteCoinResponse:{
+		response: "document with id='"++ vars.documentID ++"' doesn't exist"
+		}
+else
+	ns0#deleteCoinResponse:{
+		response: "document with id='"++ vars.documentID ++"' was deleted successfully"
+		}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="httpStatus" ><![CDATA[201]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="ba7f1553-8c79-47e7-82cb-317e9c21e5d1" message="#[payload]"/>
+
 </sub-flow>
 
-	<sub-flow name="createCoinSubFlow" doc:id="c76f680e-e84e-4ba5-8ee5-edabcfa4183a" >
-		<xml-module:validate-schema doc:name="Validate schema" doc:id="d9be7000-e583-41c3-9e37-8f81c0531e93" schemas="schemas\createCoin.xsd">
+	<sub-flow name="createCoinSubFlow" doc:id="4de0c4c0-0472-4963-8e12-29f4d12ba80e" >
+		<xml-module:validate-schema doc:name="Validate schema" doc:id="a31358ef-e51d-4abe-8bb2-25893379d5db" schemas="schemas\createCoin.xsd">
 			<xml-module:content ><![CDATA[#[payload.body]]]></xml-module:content>
 		</xml-module:validate-schema>
-		<set-variable value="#[payload.body]" doc:name="Set Document" doc:id="84b83d6d-9de7-4c83-ac96-544630b42048" variableName="document"/>
-		<logger level="INFO" doc:name="Logger" doc:id="27480f72-6024-45e5-ba23-d4f35e007978" message="#[vars.document]"/>
-		<logger level="INFO" doc:name="Logger" doc:id="40c32b01-1503-4566-865b-7cf1cab32013" message="#[vars.document.body]"/>
-		<mongo:collection-exists doc:name="Collection exists" doc:id="48c75ee5-88a2-4a02-81a5-0a4d10fd3276" config-ref="MongoDB_Config" collectionName="myFirstCollection"/>
-		<choice doc:name="Choice" doc:id="01b96ee6-9821-458f-93aa-afef1aa31ddd" >
+		<set-variable value="#[payload.body]" doc:name="Set Document" doc:id="d6a47ab6-6de5-4cbc-84c8-2ec81f5863a7" variableName="document"/>
+		<mongo:collection-exists doc:name="Collection exists" doc:id="85786ec6-de81-404d-84d0-9b477b1a005e" config-ref="MongoDB_Config" collectionName="myFirstCollection"/>
+		<choice doc:name="Choice" doc:id="0945b3d1-4c22-44bd-8c64-40fc39ce54aa" >
 			<when expression="#[!payload]">
-				<mongo:create-collection doc:name="Create collection" doc:id="ea9686dd-8e46-4ec9-becc-1fd39ecad6e5" config-ref="MongoDB_Config" collectionName="OneMoreCollection"/>
-				<ee:transform doc:name="XML to JSON" doc:id="fccdcdcd-4f20-410d-9e78-ac17451c3ff4">
+				<mongo:create-collection doc:name="Create collection" doc:id="8b8e0135-70ed-4e67-ab74-4da40700eb65" config-ref="MongoDB_Config" collectionName="OneMoreCollection"/>
+				<ee:transform doc:name="XML to JSON" doc:id="5e6c8e6c-5330-4364-915d-055922c15b25">
 					<ee:message>
 						<ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -183,13 +207,13 @@ output application/json
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
-				<mongo:insert-document doc:name="Insert document" doc:id="56ce076e-10e9-4ddb-b5f0-b00274c9e1ce" config-ref="MongoDB_Config" collectionName="myFirstCollection">
+				<mongo:insert-document doc:name="Insert document" doc:id="3fca5735-50a0-45d5-a535-55e020fb2697" config-ref="MongoDB_Config" collectionName="myFirstCollection">
 					<mongo:document ><![CDATA[#[vars.document]]]></mongo:document>
 				</mongo:insert-document>
 			
 </when>
 			<otherwise >
-				<ee:transform doc:name="XML to JSON" doc:id="c4bb205c-6308-442f-8272-2157f5cbf148">
+				<ee:transform doc:name="XML to JSON" doc:id="694c014b-8d26-4663-b8c3-281fcf75ddff">
 					<ee:message>
 						<ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -208,47 +232,81 @@ output application/json
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
-				<mongo:insert-document doc:name="Insert document" doc:id="962e999d-e61b-4e3c-a9a3-afb1217ac2dc" config-ref="MongoDB_Config" collectionName="myFirstCollection">
+				<mongo:insert-document doc:name="Insert document" doc:id="c14bb610-d8a7-4554-b387-ae9a1fd05de1" config-ref="MongoDB_Config" collectionName="myFirstCollection">
 				</mongo:insert-document>
 			
 </otherwise>
 		</choice>
-		<set-payload value="#[output application/xml
+		<logger level="INFO" doc:name="Logger" doc:id="d075ac4b-2cd8-431f-a620-b99462cf503c" message="#[response: &quot;document with id='&quot;++ (payload.&quot;_id&quot;.&quot;\$oid&quot;) ++&quot;' was created&quot;]" />
+		<ee:transform doc:name="Set header + httpStatus" doc:id="1d15e97c-078d-4e7b-ae54-95fcc2b2eaf0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0 
+ns ns0 http://training.mulesoft.com/
+output application/java
+--- 
+{  
+    headers: {
+        createCoinResponseHeader: {
+            ns0#createCoinResponseHeader: {
+            	documentID: payload."_id"."\$oid"
+            }
+        } write "application/xml"
+    },
+    
+    body: {
+    	"null":null
+    } write "application/xml"
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="httpStatus" ><![CDATA[201]]></ee:set-variable>
+			</ee:variables>
+		
+</ee:transform>
+	
+</sub-flow>
+	<sub-flow name="readCoinSubFlow" doc:id="a9b98d9b-2232-4919-b3bf-b8ad88d215eb" >
+		<validation:is-not-null doc:name="Is not null documentID" doc:id="c66be791-fd40-46e4-9598-da70e7dc3bfb" value="#[ns ns0 http://training.mulesoft.com/
 &#10;---
-&#10;headers: {
-&#10;    header: {
-&#10;      createCoinResponseHeader: {
-&#10;        documentID: payload.'_id'.'\$oid'
-&#10;      }
-&#10;    } 
-&#10;  }]" doc:name="Set documentID" doc:id="f6e38d4d-2c94-4d6a-adaa-088745a0d4c4" />
-	</sub-flow>
-	<sub-flow name="readCoinSubFlow" doc:id="12a30706-474f-4c0d-b5b8-64a5a956c22e" >
-		<validation:is-not-null doc:name="Is not null" doc:id="3a866177-8c85-41f3-9dbe-01efac8dca01" value="#[payload.headers[0].documentID]" message="documentID is null"/>
-		<set-variable value="#[payload.headers[0].documentID]" doc:name="documentID" doc:id="aa3c4f37-b39f-47bd-a532-5644563e97e2" variableName="documentID"/>
-		<mongo:find-documents doc:name="Find documents" doc:id="243622ca-2b27-4564-ab4b-4d59e88c419b" config-ref="MongoDB_Config" collectionName="myFirstCollection" fields="data,date,newDate,oldDate,dateDifference">
+&#10;payload.headers.readCoinHeader.ns0#readCoinHeader.documentID]" message="documentID is null"/>
+		<set-variable value="#[ns ns0 http://training.mulesoft.com/
+&#10;---
+&#10;payload.headers.readCoinHeader.ns0#readCoinHeader.documentID]" doc:name="documentID" doc:id="6c65361f-d3a6-4e99-9acd-745341467a64" variableName="documentID"/>
+		<validation:validate-size doc:name="Validate size documentID" doc:id="124b8a46-50d3-4438-898c-0bca6963dbdf" value="#[vars.documentID]" min="24" max="24" message="#[&quot;invalid hexadecimal representation of an ObjectId: '&quot; ++ vars.documentID ++ &quot;'&quot;]" />
+		<mongo:find-documents doc:name="Find documents" doc:id="efba297c-8267-4a9c-8153-002e1d11523f" config-ref="MongoDB_Config" collectionName="myFirstCollection" fields="data,date,newDate,oldDate,dateDifference">
 			<mongo:query ><![CDATA[#[output application/json
 ---
 {
     "_id" : {"\$oid" : vars.documentID}
 }]]]></mongo:query>
 		</mongo:find-documents>
-		<choice doc:name="Choice" doc:id="22de5483-371b-4fbe-9a99-08a4174cf8db" >
+		<choice doc:name="Choice" doc:id="99a93bb5-dbf9-408b-8826-c179369a8dea" >
 			<when expression="#[sizeOf(payload) == 0]">
-				<set-payload value="#[output application/xml
-&#10;---
-&#10;readCoinResponse:{
-&#10;	response:&quot;document with id='&quot;++ vars.documentID ++&quot;' doesn't exist&quot;
-&#10;}]" doc:name="Set Payload" doc:id="64a0e184-f5b9-4e96-ac16-3e503c6ae465" />
-			</when>
+				<ee:transform doc:name="doesn't exist + httpStatus" doc:id="42a75e3e-b722-404c-a598-3a0f0d562c98" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[output application/xml
+ns ns0 http://training.mulesoft.com/
+---
+ns0#readCoinResponse:{
+	response:"document with id='"++ (vars.documentID default "null") ++"' doesn't exist"
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[200]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="f1a8211c-01f6-464d-b8ac-8aeea731d579" message="#[payload]"/>
+			
+</when>
 			<otherwise >
-				<ee:transform doc:name="JSON to XML" doc:id="cb53cb55-bfd7-4922-90cb-6071e5fbd01a">
+				<ee:transform doc:name="JSON to XML + httpStatus" doc:id="421fe978-f0af-4f54-9c1a-f410aefa3b8a">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
+ns ns0 http://training.mulesoft.com/
 output application/xml
 ---
 {
-  readCoinResponse: {
+  ns0#readCoinResponse: {
     (oldDate: payload.oldDate)if(payload.oldDate != null),
   	(newDate: payload.newDate)if(payload.newDate != null),
   	(dateDifference: payload.dateDifference)if(payload.dateDifference != null),
@@ -259,8 +317,14 @@ output application/xml
  }
 }]]></ee:set-payload>
 			</ee:message>
-		</ee:transform>
-			</otherwise>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[200]]></ee:set-variable>
+					</ee:variables>
+		
+</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="ca8d07f0-574f-4691-96a7-fe8de5dcce63" message="#[response: &quot;document with id='&quot;++ vars.documentID ++&quot;' was read&quot;]"/>
+			
+</otherwise>
 		</choice>
 	</sub-flow>
 </mule>

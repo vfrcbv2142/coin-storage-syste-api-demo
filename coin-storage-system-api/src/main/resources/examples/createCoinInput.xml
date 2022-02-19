@@ -1,0 +1,19 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tra="http://training.mulesoft.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <tra:createCoin>
+         <date>?</date>
+         <data>
+            <coin>
+               <name>?</name>
+               <symbol>?</symbol>
+               <supply>?</supply>
+               <coin_market_price>?</coin_market_price>
+               <coin_cap_price>?</coin_cap_price>
+               <coin_market_volume24h>?</coin_market_volume24h>
+               <coin_cap_volume24h>?</coin_cap_volume24h>
+            </coin>
+         </data>
+      </tra:createCoin>
+   </soapenv:Body>
+</soapenv:Envelope>
