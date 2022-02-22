@@ -1,0 +1,10 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tra="http://training.mulesoft.com/">
+   <soapenv:Header>
+      <tra:readCoinHeader>
+         <documentID>620ac2612b9d1665314f5d4a</documentID>
+      </tra:readCoinHeader>
+   </soapenv:Header>
+   <soapenv:Body>
+      <tra:readCoin>?</tra:readCoin>
+   </soapenv:Body>
+</soapenv:Envelope>

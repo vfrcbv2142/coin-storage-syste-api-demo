@@ -1,4 +1,53 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
-  <types:catalog/>
+  <types:catalog>
+    <types:type name="readCoinInput" format="xml">
+      <types:example format="xml" element="{http://schemas.xmlsoap.org/soap/envelope/}Envelope" location="examples/readCoinInput.xml"/>
+    </types:type>
+    <types:type name="createCoinInput" format="xml">
+      <types:example format="xml" element="{http://schemas.xmlsoap.org/soap/envelope/}Envelope" location="examples/createCoinInput.xml"/>
+    </types:type>
+    <types:type name="deleteCoinInput" format="xml">
+      <types:example format="xml" element="{http://schemas.xmlsoap.org/soap/envelope/}Envelope" location="examples/deleteCoinInput.xml"/>
+    </types:type>
+    <types:type name="updateCoinInput" format="xml">
+      <types:example format="xml" element="{http://schemas.xmlsoap.org/soap/envelope/}Envelope" location="examples/updateCoinInput.xml"/>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#6c65361f-d3a6-4e99-9acd-745341467a64">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="readCoinInput"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#d6a47ab6-6de5-4cbc-84c8-2ec81f5863a7">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="createCoinInput"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#d3f8e7d8-7c51-4799-a00d-eb95abe7103b">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="deleteCoinInput"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#d8f3d160-401a-4e8d-b2eb-73ff5576416b">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="updateCoinInput"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
 </types:mule>

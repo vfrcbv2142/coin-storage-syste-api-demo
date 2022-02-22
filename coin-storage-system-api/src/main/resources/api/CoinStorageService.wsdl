@@ -97,6 +97,7 @@
       		<xsd:element name="name" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       		<xsd:element name="symbol" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       		<xsd:element name="supply" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
+			<xsd:element name="description" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       		<xsd:element name="developmentStatus" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       		<xsd:element name="proofType" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       		<xsd:element name="orgStructure" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
@@ -124,6 +125,7 @@
       		<xsd:element name="name" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       		<xsd:element name="symbol" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
       		<xsd:element name="supply" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
+			<xsd:element name="description" type="xsd:string" maxOccurs="1" minOccurs="0"></xsd:element>
       		<xsd:element name="developmentStatus" type="xsd:string" maxOccurs="1" minOccurs="0"></xsd:element>
       		<xsd:element name="proofType" type="xsd:string" maxOccurs="1" minOccurs="0"></xsd:element>
       		<xsd:element name="orgStructure" type="xsd:string" maxOccurs="1" minOccurs="0"></xsd:element>
@@ -163,7 +165,6 @@
       		<xsd:sequence>
       			<xsd:element name="statusCode" type="xsd:string"></xsd:element>
       			<xsd:element name="errorType" type="xsd:string"></xsd:element>
-      			<xsd:element name="description" type="xsd:string"></xsd:element>
       			<xsd:element name="date" type="xsd:string"></xsd:element>
       		</xsd:sequence>
       	</xsd:complexType>
@@ -233,29 +234,29 @@
   </wsdl:message>
 
   <wsdl:message name="fault">
-  	<wsdl:part name="error" element="tns:fault"></wsdl:part>
+  	<wsdl:part name="fault" element="tns:fault"></wsdl:part>
   </wsdl:message>
   
   <wsdl:portType name="CoinStorageService">
     <wsdl:operation name="createCoin">
       <wsdl:input message="tns:createCoinRequest" name="createCoinRequest"></wsdl:input>
       <wsdl:output message="tns:null" name="createCoinResponse"></wsdl:output>
-      <wsdl:fault message="tns:fault" name="createCoinFault"></wsdl:fault>
+      <wsdl:fault message="tns:fault" name="coinStorageServiceFault"></wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="readCoin">
     	<wsdl:input message="tns:readCoinRequest" name="readCoinRequest"></wsdl:input>
     	<wsdl:output message="tns:readCoinResponse" name="readCoinResponse"></wsdl:output>
-    	<wsdl:fault message="tns:fault" name="readCoinFault"></wsdl:fault>
+    	<wsdl:fault message="tns:fault" name="coinStorageServiceFault"></wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="updateCoin">
     	<wsdl:input message="tns:updateCoinRequest" name="updateCoinRequest"></wsdl:input>
     	<wsdl:output message="tns:updateCoinResponse" name="updateCoinResponse"></wsdl:output>
-    	<wsdl:fault message="tns:fault" name="updateCoinFault"></wsdl:fault>
+    	<wsdl:fault message="tns:fault" name="coinStorageServiceFault"></wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="deleteCoin">
     	<wsdl:input message="tns:deleteCoinRequest" name="deleteCoinRequest"></wsdl:input>
     	<wsdl:output message="tns:deleteCoinResponse" name="deleteCoinResponse"></wsdl:output>
-    	<wsdl:fault message="tns:fault" name="deleteCoinFault"></wsdl:fault>
+    	<wsdl:fault message="tns:fault" name="coinStorageServiceFault"></wsdl:fault>
     </wsdl:operation>
   </wsdl:portType>
   
@@ -272,8 +273,8 @@
   		<wsdl:output name="createCoinResponse">
   			<soap:header use="literal" message="tns:createCoinResponseHeader" part="header"></soap:header>
   		</wsdl:output>
-  		<wsdl:fault name="createCoinFault">
-            <soap:fault use="literal" name="createCoinFault"/>
+  		<wsdl:fault name="coinStorageServiceFault">
+            <soap:fault use="literal"/>
         </wsdl:fault>
   	</wsdl:operation>
   	<wsdl:operation name="readCoin">
@@ -286,8 +287,8 @@
   		<wsdl:output name="readCoinResponse">
   			<soap:body use="literal" />
   		</wsdl:output>
-  		<wsdl:fault name="readCoinFault">
-            <soap:fault use="literal" name="readCoinFault"/>
+  		<wsdl:fault name="coinStorageServiceFault">
+            <soap:fault use="literal"/>
         </wsdl:fault>
   	</wsdl:operation>
   	<wsdl:operation name="updateCoin">
@@ -300,8 +301,8 @@
   		<wsdl:output name="updateCoinResponse">
   			<soap:body use="literal" />
   		</wsdl:output>
-  		<wsdl:fault name="updateCoinFault">
-            <soap:fault use="literal" name="updateCoinFault"/>
+  		<wsdl:fault name="coinStorageServiceFault">
+            <soap:fault use="literal"/>
         </wsdl:fault>
   	</wsdl:operation>
   	<wsdl:operation name="deleteCoin">
@@ -314,8 +315,8 @@
   		<wsdl:output name="deleteCoinResponse">
   			<soap:body use="literal" />
   		</wsdl:output>
-  		<wsdl:fault name="deleteCoinFault">
-            <soap:fault use="literal" name="deleteCoinFault"/>
+  		<wsdl:fault name="coinStorageServiceFault">
+            <soap:fault use="literal"/>
         </wsdl:fault>
   	</wsdl:operation>
   </wsdl:binding>

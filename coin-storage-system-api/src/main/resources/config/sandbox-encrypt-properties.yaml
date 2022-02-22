@@ -1,0 +1,16 @@
+listener:
+  path: "![60lNko+O0BnTuZpU/m7AsEbzZAHXc25x]"
+
+listenerConfig:
+  protocol: "![MvkzOnxldUA=]"
+  host: "![oskO34yP1RU=]"
+  port: "![xLuzmX9apwk=]"
+
+APIKit:
+  wsdlLocation: "![jpaEC1R1NW4QU+psEaOszMZGoYzS+d5J]"
+  service: "![jpaEC1R1NW4QU+psEaOszPTKN4/dJfpm]"
+  port: "![jpaEC1R1NW4QU+psEaOszGTZskYfxdiB]"
+
+mongoDB:
+  connectionString: "![I8EII7MlF7nW39h79PKbuEcz5kPnMnILNNPA2MXgicgcMc3NN4T+4MTzCpwDmS7Itl1QAra7YtwSBTPqqvrpL6YYQdMfIyVLzn3lqtDax0rX1uojj7eWbatPAPyVwXX3GApkGCZ5YURxey1dSRGDSQ==]"
+  collectionName: "![4c5jlLRHLbhakGpdsL9/KSBUh82yg6RH]"

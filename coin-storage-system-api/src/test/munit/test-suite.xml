@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd">
+	<munit:config name="test-suite.xml" />
+	<wsc:config name="Web_Service_Consumer_Config" doc:name="Web Service Consumer Config" doc:id="d0c10a8f-cc42-44ef-b1b6-ed4292450a20" >
+		<wsc:connection wsdlLocation="http://localhost:8081/CoinStorageService?wsdl" service="CoinStorageService" port="CoinStorageServiceSOAP" address="http://localhost:8081/CoinStorageService" >
+			<wsc:web-service-security actor="http://schemas.xmlsoap.org/soap/actor/next" />
+		</wsc:connection>
+	</wsc:config>
+	<munit:test name="readLowerChoice" doc:id="864b61df-3c04-4f20-808b-928ca47f49b2">
+		<munit:enable-flow-sources >
+			<munit:enable-flow-source value="api-main" />
+			<munit:enable-flow-source value="readCoinSubFlow" />
+			<munit:enable-flow-source value="readCoin:\soapkit-config" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="6917e1f3-5c64-4336-998f-8d32b112975a" processor="mongo:find-documents">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="efba297c-8267-4a9c-8153-002e1d11523f" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<wsc:consume doc:name="Consume" doc:id="b4ea88b8-6a9d-4712-9b06-f5f752bfd5f4" config-ref="Web_Service_Consumer_Config" operation="readCoin">
+				<wsc:message >
+					<wsc:body ><![CDATA[#[null]]]></wsc:body>
+					<wsc:headers ><![CDATA[#[%dw 2.0
+output application/xml
+
+ns ns0 http://training.mulesoft.com/
+  ---
+  
+  "headers": {
+   
+   ns0#readCoinHeader:{
+    documentID: "123456789009876543211234"
+   }
+  }]]]></wsc:headers>
+				</wsc:message>
+			</wsc:consume>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call doc:name="Verify call" doc:id="c662d247-2dea-4134-b2a5-3be68ef7af5e" processor="mongo:find-documents" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Find documents" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="efba297c-8267-4a9c-8153-002e1d11523f" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="MongoDB_Config" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="myFirstCollection" attributeName="collectionName" />
+					<munit-tools:with-attribute whereValue="data,date,newDate,oldDate,dateDifference" attributeName="fields" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call doc:name="Verify call" doc:id="a56e365a-df70-4a0c-830c-5d3e99871873" processor="ee:transform" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="421fe978-f0af-4f54-9c1a-f410aefa3b8a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="readUpperChoice" doc:id="dc7b206e-b275-4d33-a150-f5d1072a3635">
+		<munit:enable-flow-sources >
+			<munit:enable-flow-source value="api-main" />
+			<munit:enable-flow-source value="readCoin:\soapkit-config" />
+			<munit:enable-flow-source value="readCoinSubFlow" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="0ddc04e1-29cc-4538-83c2-048803316868" processor="mongo:find-documents">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="efba297c-8267-4a9c-8153-002e1d11523f" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[MunitTools::getResourceAsStream('mocks/emptyPayload.json')]" mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<wsc:consume doc:name="Consume" doc:id="4c815a28-fe93-4aad-a322-e17c3510e0c7" config-ref="Web_Service_Consumer_Config" operation="readCoin">
+				<wsc:message >
+					<wsc:body ><![CDATA[#[null]]]></wsc:body>
+					<wsc:headers ><![CDATA[#[%dw 2.0
+output application/xml
+
+ns ns0 http://training.mulesoft.com/
+  ---
+  
+  "headers": {
+   
+   ns0#readCoinHeader:{
+    documentID: "123456789009876543211234"
+   }
+  }]]]></wsc:headers>
+				</wsc:message>
+			</wsc:consume>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="dc83eae4-03bb-4287-ba2d-b883697f5a0b" processor="ee:transform" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="42a75e3e-b722-404c-a598-3a0f0d562c98" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="createUpperChoice" doc:id="3900b6f1-ed18-4fe2-90b0-48354d34d1df">
+		<munit:enable-flow-sources >
+			<munit:enable-flow-source value="createCoin:\soapkit-config" />
+			<munit:enable-flow-source value="createCoinSubFlow" />
+			<munit:enable-flow-source value="api-main" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="d7bbfdb5-e774-4562-a512-ca68d56c501d" processor="mongo:collection-exists">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="85786ec6-de81-404d-84d0-9b477b1a005e" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[false]" mediaType="application/java" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="652cf748-d730-4d0d-a818-3cb0b9244b19" processor="mongo:create-collection">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="8b8e0135-70ed-4e67-ab74-4da40700eb65" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[MunitTools::getResourceAsStream('mocks/createCoinMongoDBOutput.json')]" mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="29cedd9e-efe1-40d1-9686-d11a1611c63f" processor="mongo:insert-document">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="3fca5735-50a0-45d5-a535-55e020fb2697" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<wsc:consume doc:name="Consume" doc:id="990d734b-2df0-471b-912e-e66429fa6269" config-ref="Web_Service_Consumer_Config" operation="createCoin">
+				<wsc:message >
+					<wsc:body ><![CDATA[#[output application/xml
+ns ns0 http://training.mulesoft.com/
+---
+      ns0#createCoin:{
+         date:"test",
+         data:{
+            coin:{
+               name:"test",
+               symbol:"test",
+               supply:"test",
+               "coin_market_price":"1111",
+               "coin_cap_price":"1111",
+               "coin_market_volume24h":"1111",
+               "coin_cap_volume24h":"1111",
+            }
+         }
+      }]]]></wsc:body>
+					<wsc:headers ><![CDATA[#[%dw 2.0
+output application/xml
+
+ns ns0 http://training.mulesoft.com/
+  ---
+  
+  "headers": {
+   
+   ns0#createCoinHeader:{
+    documentID: vars.key
+   }
+  }]]]></wsc:headers>
+				</wsc:message>
+			</wsc:consume>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="0f062151-d268-4d36-95f6-11b06b1e40c8" processor="mongo:insert-document" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="3fca5735-50a0-45d5-a535-55e020fb2697" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="createLowerChoice" doc:id="8c5d2643-7b9a-41ce-aa92-70e0fd0de9be">
+		<munit:enable-flow-sources>
+			<munit:enable-flow-source value="api-main" />
+			<munit:enable-flow-source value="createCoin:\soapkit-config" />
+			<munit:enable-flow-source value="createCoinSubFlow" />
+		</munit:enable-flow-sources>
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="09fd8eba-01bd-4e65-95ba-89ae5725542d" processor="mongo:collection-exists">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="85786ec6-de81-404d-84d0-9b477b1a005e" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload value="#[true]" mediaType="application/java" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="214bbfd1-4101-4acb-8a49-8545eb9647bf" processor="mongo:insert-document">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="c14bb610-d8a7-4554-b387-ae9a1fd05de1" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload value="#[MunitTools::getResourceAsStream('mocks/createCoinMongoDBOutput.json')]" mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<wsc:consume doc:name="Consume" doc:id="b2ee5dbf-55fb-4bf5-8633-ad3e9b5824d9" config-ref="Web_Service_Consumer_Config" operation="createCoin">
+				<wsc:message>
+					<wsc:body><![CDATA[#[output application/xml
+ns ns0 http://training.mulesoft.com/
+---
+      ns0#createCoin:{
+         date:"test",
+         data:{
+            coin:{
+               name:"test",
+               symbol:"test",
+               supply:"test",
+               "coin_market_price":"1111",
+               "coin_cap_price":"1111",
+               "coin_market_volume24h":"1111",
+               "coin_cap_volume24h":"1111",
+            }
+         }
+      }]]]></wsc:body>
+					<wsc:headers><![CDATA[#[%dw 2.0
+output application/xml
+
+ns ns0 http://training.mulesoft.com/
+  ---
+  
+  "headers": {
+   
+   ns0#createCoinHeader:{
+    documentID: vars.key
+   }
+  }]]]></wsc:headers>
+				</wsc:message>
+			</wsc:consume>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call doc:name="Verify call" doc:id="c75f1c21-fc08-4a72-9fa0-dc49000f413b" processor="mongo:insert-document" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="c14bb610-d8a7-4554-b387-ae9a1fd05de1" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>
