@@ -27,6 +27,7 @@
 		<error-handler ref="globalErrorHandler" />
     </flow>
     <flow name="readCoin:\soapkit-config" doc:id="d9270922-6732-4132-aa4a-b9db9779a9a7">
+
         <flow-ref doc:name="Flow Reference" doc:id="a0a92048-8b95-4cb9-b604-33840e1b71da" name="readCoinSubFlow"/>
 		<error-handler ref="globalErrorHandler" />
     </flow>
