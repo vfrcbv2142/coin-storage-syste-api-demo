@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit-soap="http://www.mulesoft.org/schema/mule/apikit-soap" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/apikit-soap http://www.mulesoft.org/schema/mule/apikit-soap/current/mule-apikit-soap.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-    <flow name="api-main">
+    <flow name="api-main" doc:id="9a3c6748-c9c3-419d-98a0-a99b8c8a4adc">
         <http:listener path="/CoinStorageService" config-ref="api-httpListenerConfig">
             <http:response statusCode="#[vars.httpStatus default 200]">
                 <http:headers><![CDATA[#[attributes.protocolHeaders default {}]]]></http:headers>
@@ -22,11 +22,12 @@
         </apikit-soap:router>
 		<error-handler ref="globalErrorHandler" />
     </flow>
-    <flow name="createCoin:\soapkit-config">
+    <flow name="createCoin:\soapkit-config" doc:id="040e14b0-ae0d-4088-b392-26062d7d93d7">
 		  <flow-ref doc:name="Flow Reference" doc:id="b751d30b-43cf-4d4e-bfae-3add8484738f" name="createCoinSubFlow"/>
 		<error-handler ref="globalErrorHandler" />
     </flow>
-    <flow name="readCoin:\soapkit-config">
+    <flow name="readCoin:\soapkit-config" doc:id="d9270922-6732-4132-aa4a-b9db9779a9a7">
+
         <flow-ref doc:name="Flow Reference" doc:id="a0a92048-8b95-4cb9-b604-33840e1b71da" name="readCoinSubFlow"/>
 		<error-handler ref="globalErrorHandler" />
     </flow>

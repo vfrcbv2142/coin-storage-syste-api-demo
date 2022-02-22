@@ -237,7 +237,8 @@ output application/json
 			
 </otherwise>
 		</choice>
-		<logger level="INFO" doc:name="Logger" doc:id="d075ac4b-2cd8-431f-a620-b99462cf503c" message="#[response: &quot;document with id='&quot;++ (payload.&quot;_id&quot;.&quot;\$oid&quot;) ++&quot;' was created&quot;]" />
+
+		<logger level="INFO" doc:name="Logger" doc:id="d075ac4b-2cd8-431f-a620-b99462cf503c" message="#[response: &quot;document with id='&quot;++ ((payload.&quot;_id&quot;.&quot;\$oid&quot;) default &quot;&quot;) ++&quot;' was created&quot;]" />
 		<ee:transform doc:name="Set header + httpStatus" doc:id="1d15e97c-078d-4e7b-ae54-95fcc2b2eaf0" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0 
