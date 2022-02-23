@@ -10,19 +10,19 @@ http://www.mulesoft.org/schema/mule/apikit-soap http://www.mulesoft.org/schema/m
 http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<http:listener-config name="api-httpListenerConfig">
-        <http:listener-connection host="0.0.0.0" port="8081"/>
+        <http:listener-connection host="${secure::listenerConfig.host}" port="${secure::listenerConfig.port}"/>
     </http:listener-config>
-	<apikit-soap:config name="soapkit-config" doc:name="APIKit for SOAP Configuration" doc:id="6b7d0d88-0ad7-41c0-8581-000f59ec00ba" wsdlLocation="CoinStorageService.wsdl" service="CoinStorageService" port="CoinStorageServiceSOAP" soapVersion="SOAP11"/>
+	<apikit-soap:config name="soapkit-config" doc:name="APIKit for SOAP Configuration" doc:id="6b7d0d88-0ad7-41c0-8581-000f59ec00ba" wsdlLocation="${secure::APIKit.wsdlLocation}" service="${secure::APIKit.service}" port="${secure::APIKit.port}" soapVersion="SOAP11"/>
 	<configuration-properties doc:name="Configuration properties" doc:id="b3100663-2b7c-48f0-9cee-b335a5c080f0" file="config/${mule_env}-encrypt-properties.yaml" />
 	<mongo:config name="MongoDB_Config" doc:name="MongoDB Config" doc:id="79ad8247-bdc2-41b9-b861-a040cb053b11" >
-		<mongo:connection-string-connection connectionString="mongodb+srv://vfrcbv2142:vfrcbv2142@cluster0.6tkgj.mongodb.net/myFirstDatabase?retryWrites=true&amp;w=majority" />
+		<mongo:connection-string-connection connectionString="${secure::mongoDB.connectionString}" />
 	</mongo:config>
 	<configuration doc:name="Configuration" doc:id="8fbe59ec-b096-4190-a54d-d97f7e2c3787" defaultErrorHandler-ref="globalErrorHandler"/>
 	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="a628760f-5d2b-4195-8992-c07d9804443c" file="config/${mule_env}-encrypt-properties.yaml" key="${secureKey}" >
 		<secure-properties:encrypt algorithm="Blowfish" />
 	</secure-properties:config>
 	<error-handler name="globalErrorHandler" doc:id="c13d91b8-44fc-4fec-8496-647e967c6ecd" >
-		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error continue" doc:id="5b9902f7-8ff6-4d0c-80f9-8da7092cfcfc" type="HTTP:BAD_REQUEST, XML-MODULE:SCHEMA_NOT_HONOURED, VALIDATION:INVALID_SIZE, VALIDATION:NULL">
+		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error continue" doc:id="5b9902f7-8ff6-4d0c-80f9-8da7092cfcfc" type="HTTP:BAD_REQUEST, XML-MODULE:SCHEMA_NOT_HONOURED, VALIDATION:INVALID_SIZE, VALIDATION:NULL">
 			<ee:transform doc:name="400 error + httpStatus" doc:id="dc342771-4236-4c43-8d30-0846de12cede">
 				<ee:message>
 					<ee:set-payload><![CDATA[%dw 2.0
@@ -49,9 +49,9 @@ ns ns0 http://training.mulesoft.com/
 					<ee:set-variable variableName="httpStatus"><![CDATA[400]]></ee:set-variable>
 				</ee:variables>
 			</ee:transform>
-			<apikit-soap:fault operation="createCoin" fault="coinStorageServiceFault" doc:name="SOAP Fault" doc:id="674223b6-4f48-4e62-afda-61cf4bddf7e5" config-ref="soapkit-config"/>
+			<apikit-soap:fault doc:name="SOAP Fault" doc:id="5d319e35-19ec-4c6d-a432-bacb6322a18c" config-ref="soapkit-config" operation="createCoin" fault="coinStorageServiceFault"/>
 		
-</on-error-propagate>
+</on-error-continue>
 		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error continue" doc:id="7d5088f7-2265-47ed-821b-561a4e1c5323" type="HTTP:UNAUTHORIZED">
 			<ee:transform doc:name="401 error + httpStatus" doc:id="9a0e96ab-1c3b-4ac7-99a6-ab808e3f160a" >
 				<ee:message >
@@ -233,7 +233,7 @@ ns ns0 http://training.mulesoft.com/
 		
 </on-error-continue>
 		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error continue" doc:id="0c951fa5-1383-4402-83a4-daef3a2c9868" type="ANY">
-			<ee:transform doc:name="unknown error + httpStatus" doc:id="dd44a64e-41a7-4572-85c8-db994a9c39cd" >
+			<ee:transform doc:name="any error + httpStatus" doc:id="dd44a64e-41a7-4572-85c8-db994a9c39cd" >
 				<ee:message >
 					<ee:set-payload ><![CDATA[%dw 2.0
 output application/xml
@@ -262,7 +262,5 @@ ns ns0 http://training.mulesoft.com/
 			<apikit-soap:fault operation="createCoin" fault="coinStorageServiceFault" doc:name="SOAP Fault" doc:id="7027002c-905e-44de-9dfe-ed889be82cb7" config-ref="soapkit-config" />
 		
 </on-error-continue>
-
-	
 </error-handler>
 </mule>

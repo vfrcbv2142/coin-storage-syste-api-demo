@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <mule xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
@@ -9,11 +10,599 @@
 		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
 http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd">
 	<munit:config name="test-suite.xml" />
-	<wsc:config name="Web_Service_Consumer_Config" doc:name="Web Service Consumer Config" doc:id="d0c10a8f-cc42-44ef-b1b6-ed4292450a20" >
-		<wsc:connection wsdlLocation="http://localhost:8081/CoinStorageService?wsdl" service="CoinStorageService" port="CoinStorageServiceSOAP" address="http://localhost:8081/CoinStorageService" >
+	<wsc:config name="Web_Service_Consumer_Config" doc:name="Web Service Consumer Config" doc:id="3d4bcf0b-fee6-4048-80ba-364c87054290" >
+		<wsc:connection wsdlLocation="http://localhost:8081/CoinStorageService?wsdl" service="CoinStorageService" port="CoinStorageServiceSOAP" address="http://localhost:8081/CoinStorageService">
 			<wsc:web-service-security actor="http://schemas.xmlsoap.org/soap/actor/next" />
 		</wsc:connection>
 	</wsc:config>
+	<munit:test name="updateCoinSubFlowWithDescriptionDocumentExist" doc:id="dbf1ca4e-a44b-4c24-9893-abab1a88e357">
+		<munit:enable-flow-sources >
+			<munit:enable-flow-source value="api-main" />
+			<munit:enable-flow-source value="updateCoin:\soapkit-config" />
+			<munit:enable-flow-source value="readCoinSubFlow" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="update document" doc:id="736bf100-d424-4ecb-b26c-497dd9934061" processor="mongo:update-documents">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="467f9508-92b4-41b1-b0c4-3f855b74ba5a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[MunitTools::getResourceAsStream("mocks/updateDocumentWithDescriptionDocumentExistOutput.json")]' mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<wsc:consume doc:name="updateCoin" doc:id="4df7915c-b25e-4941-a044-c859f4ca0935" config-ref="Web_Service_Consumer_Config" operation="updateCoin">
+				<wsc:message >
+					<wsc:body ><![CDATA[#[output application/xml
+ns ns0 http://training.mulesoft.com/
+---
+      ns0#updateCoin:{
+         date:"test",
+         data:{
+            coin:{
+               name:"test",
+               symbol:"test",
+               supply:"test",
+               description:"test",
+               developmentStatus:"test",
+               proofType:"test",
+               orgStructure:"test",
+               "coin_market_price":"1111",
+               "coin_cap_price":"1111",
+               "coin_market_volume24h":"1111",
+               "coin_cap_volume24h":"1111",
+            }
+         }
+      }]]]></wsc:body>
+					<wsc:headers ><![CDATA[#[%dw 2.0
+output application/xml
+ns ns0 http://training.mulesoft.com/
+  ---
+  "headers": {
+  	ns0#updateCoinHeader:{
+    	documentID: "12345678901234567890qwer"
+    	}
+  }]]]></wsc:headers>
+				</wsc:message>
+			</wsc:consume>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="set variable" doc:id="280ab579-9157-4d01-b7c4-918b2d092325" processor="set-variable" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d8f3d160-401a-4e8d-b2eb-73ff5576416b" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call doc:name="validate schema" doc:id="bb2556c8-deb2-4a73-a474-e20eae3f9a94" processor="xml-module:validate-schema" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="6fb1e088-1822-429b-a8ed-108785d1ce23" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call doc:name="transform message XML to JSON" doc:id="1bfad555-1955-4d1e-bbfb-b4672209e11d" processor="ee:transform" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="c3d763ca-cec3-4bd7-86fe-4e1e426e4470" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals doc:name="result payload" doc:id="c868f9ed-3b98-47df-a097-9d32879636be" actual="#[payload.body.updateCoinResponse.response]" expected="#[&quot;document with id='12345678901234567890qwer' was updated&quot;]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="updateCoinSubFlowWithDescriptionDocumentDoesn'tExist" doc:id="059a1bd6-cbae-4e25-a867-67ec7f9e1f8a">
+		<munit:enable-flow-sources >
+			<munit:enable-flow-source value="api-main" />
+			<munit:enable-flow-source value="updateCoin:\soapkit-config" />
+			<munit:enable-flow-source value="updateCoinSubFlow" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="update document" doc:id="9b97bbe6-708f-4d10-838b-1074c2f9be21" processor="mongo:update-documents" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="467f9508-92b4-41b1-b0c4-3f855b74ba5a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[MunitTools::getResourceAsStream(&quot;mocks/updateDocumentWithDescriptionDocumentDoesn'tExistOutput.json&quot;)]" mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<wsc:consume operation="updateCoin" doc:name="updateCoin" doc:id="24e7ebf1-64b0-434d-bfb3-e237c3c3def5" config-ref="Web_Service_Consumer_Config" >
+				<wsc:message >
+					<wsc:body ><![CDATA[#[output application/xml
+ns ns0 http://training.mulesoft.com/
+---
+      ns0#updateCoin:{
+         date:"test",
+         data:{
+            coin:{
+               name:"test",
+               symbol:"test",
+               supply:"test",
+               description:"test",
+               developmentStatus:"test",
+               proofType:"test",
+               orgStructure:"test",
+               "coin_market_price":"1111",
+               "coin_cap_price":"1111",
+               "coin_market_volume24h":"1111",
+               "coin_cap_volume24h":"1111",
+            }
+         }
+      }]]]></wsc:body>
+					<wsc:headers ><![CDATA[#[%dw 2.0
+output application/xml
+ns ns0 http://training.mulesoft.com/
+  ---
+  "headers": {
+  	ns0#updateCoinHeader:{
+    	documentID: "12345678901234567890qwer"
+    	}
+  }]]]></wsc:headers>
+				</wsc:message>
+			</wsc:consume>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="set variable" doc:id="a3251a22-c395-4c1c-a8d2-679fbdcbd0a5" processor="set-variable" times="1" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d8f3d160-401a-4e8d-b2eb-73ff5576416b" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call doc:name="validate schema" doc:id="2a96ee5c-e537-4b3e-8e07-2fdbd6dc623c" processor="xml-module:validate-schema" times="1" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="6fb1e088-1822-429b-a8ed-108785d1ce23" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call doc:name="transform message XML to JSON" doc:id="37ce288e-f9f2-4aff-bc57-d5fbba25b3cb" processor="ee:transform" times="1" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="c3d763ca-cec3-4bd7-86fe-4e1e426e4470" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals doc:name="result payload" doc:id="cac681fb-d16c-41b9-b238-204e9eec6e00" actual="#[payload.body.updateCoinResponse.response]" expected="#[&quot;document with id='12345678901234567890qwer' doesn't exist&quot;]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="updateCoinSubFlowWithNewPriceDocumentExist" doc:id="02fd4557-3b67-47e1-95b9-e9a712cace06">
+		<munit:enable-flow-sources >
+			<munit:enable-flow-source value="api-main" />
+			<munit:enable-flow-source value="updateCoin:\soapkit-config" />
+			<munit:enable-flow-source value="readCoinSubFlow" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="update document (execute command)" doc:id="b03b9d02-5f03-48ee-a0c1-27ac2c291aee" processor="mongo:execute-command">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="b5c4b775-6d2f-42af-b40b-8d1b63f49809" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="check out updating (check out updating)" doc:id="76b49806-c6dd-47e8-99db-e9db7a24c6d7" processor="mongo:find-documents">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="b25c1661-4519-4603-9f1e-cf8b0f86841e" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[MunitTools::getResourceAsStream("mocks/anyPayload.json")]' mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<wsc:consume doc:name="updateCoin" doc:id="47d4227c-becd-4780-a0da-9fa1c367ab39" config-ref="Web_Service_Consumer_Config" operation="updateCoin">
+				<wsc:message >
+					<wsc:body ><![CDATA[#[output application/xml
+ns ns0 http://training.mulesoft.com/
+---
+      ns0#updateCoin:{
+      	 oldDate:"test",
+      	 newDate:"test",
+      	 dateDifference:"test",
+         data:{
+            coin:{
+               name:"test",
+               symbol:"test",
+               supply:"test",
+               description:"test",
+               developmentStatus:"test",
+               proofType:"test",
+               orgStructure:"test",
+               "coin_market_oldPriceUsd":"1111",
+               "coin_cap_oldPriceUsd":"1111",
+               "coin_market_newPriceUsd":"1111",
+               "coin_cap_newPriceUsd":"1111",
+               "coin_market_priceDifference":"1111",
+               "coin_cap_priceDifference":"1111",
+               "coin_market_volume24h":"1111",
+               "coin_cap_volume24h":"1111",
+            }
+         }
+      }]]]></wsc:body>
+					<wsc:headers ><![CDATA[#[%dw 2.0
+output application/xml
+ns ns0 http://training.mulesoft.com/
+  ---
+  "headers": {
+  	ns0#updateCoinHeader:{
+    	documentID: "12345678901234567890qwer"
+    	}
+  }]]]></wsc:headers>
+				</wsc:message>
+			</wsc:consume>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="set variable" doc:id="627c3a09-b4e7-4f8f-927d-e12c61f3de25" processor="set-variable" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d8f3d160-401a-4e8d-b2eb-73ff5576416b" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call doc:name="validate schema" doc:id="e4341f3b-8ea7-4d2c-9331-83b65c7da1ed" processor="xml-module:validate-schema" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="ae33bd00-abc3-4e88-967b-7bb1a864173c" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call doc:name="transform message XML to JSON" doc:id="87295ef0-4ce7-4648-89e2-735376f0a35b" processor="ee:transform" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="50bbdf5b-0030-4fc8-b18d-3fb80185e99f" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals doc:name="result payload" doc:id="40088a83-fce5-4ce2-9182-c508dbf72510" actual="#[payload.body.updateCoinResponse.response]" expected="#[&quot;document with id='12345678901234567890qwer' was updated&quot;]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="updateCoinSubFlowWithNewPriceDocumentDoesn'tExist" doc:id="b2053ccb-8a4b-4307-bbb0-4335522112a4">
+		<munit:enable-flow-sources >
+			<munit:enable-flow-source value="api-main" />
+			<munit:enable-flow-source value="updateCoin:\soapkit-config" />
+			<munit:enable-flow-source value="readCoinSubFlow" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="update document (execute command)" doc:id="0f970efb-33b3-443c-b454-eded826fb8d3" processor="mongo:execute-command" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="b5c4b775-6d2f-42af-b40b-8d1b63f49809" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="check out updating (check out updating)" doc:id="95900338-52fa-4906-853f-84478f347ca0" processor="mongo:find-documents" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="b25c1661-4519-4603-9f1e-cf8b0f86841e" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[MunitTools::getResourceAsStream("mocks/emptyPayload.json")]' mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<wsc:consume doc:name="updateCoin" doc:id="6d06cd69-b6f7-4d2d-a696-d75c88c50725" config-ref="Web_Service_Consumer_Config" operation="updateCoin">
+				<wsc:message >
+					<wsc:body ><![CDATA[#[output application/xml
+ns ns0 http://training.mulesoft.com/
+---
+      ns0#updateCoin:{
+      	 oldDate:"test",
+      	 newDate:"test",
+      	 dateDifference:"test",
+         data:{
+            coin:{
+               name:"test",
+               symbol:"test",
+               supply:"test",
+               description:"test",
+               developmentStatus:"test",
+               proofType:"test",
+               orgStructure:"test",
+               "coin_market_oldPriceUsd":"1111",
+               "coin_cap_oldPriceUsd":"1111",
+               "coin_market_newPriceUsd":"1111",
+               "coin_cap_newPriceUsd":"1111",
+               "coin_market_priceDifference":"1111",
+               "coin_cap_priceDifference":"1111",
+               "coin_market_volume24h":"1111",
+               "coin_cap_volume24h":"1111",
+            }
+         }
+      }]]]></wsc:body>
+					<wsc:headers ><![CDATA[#[%dw 2.0
+output application/xml
+ns ns0 http://training.mulesoft.com/
+  ---
+  "headers": {
+  	ns0#updateCoinHeader:{
+    	documentID: "12345678901234567890qwer"
+    	}
+  }]]]></wsc:headers>
+				</wsc:message>
+			</wsc:consume>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="set variable" doc:id="7cbb02e6-137e-420e-ad00-c973c07bf22c" processor="set-variable" times="1" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d8f3d160-401a-4e8d-b2eb-73ff5576416b" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call doc:name="validate schema" doc:id="7e231436-610e-44be-b5c2-0ce201979c56" processor="xml-module:validate-schema" times="1" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="ae33bd00-abc3-4e88-967b-7bb1a864173c" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call doc:name="transform message XML to JSON" doc:id="a545e242-defe-4ed1-8761-e8fb7149a1dc" processor="ee:transform" times="1" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="50bbdf5b-0030-4fc8-b18d-3fb80185e99f" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals doc:name="result payload" doc:id="6a7d9aee-7938-4e5c-ad03-74ba87a48d37" expected="#[&quot;document with id='12345678901234567890qwer' doesn't exist&quot;]" actual="#[payload.body.updateCoinResponse.response]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="deleteCoinDocumentExist" doc:id="6404e7a2-811e-4523-a721-9e938919090c">
+		<munit:enable-flow-sources >
+			<munit:enable-flow-source value="api-main" />
+			<munit:enable-flow-source value="deleteCoin:\soapkit-config" />
+			<munit:enable-flow-source value="deleteCoinSubFlow" />
+			<munit:enable-flow-source value="readCoin:\soapkit-config" />
+			<munit:enable-flow-source value="readCoinSubFlow" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="remove document" doc:id="2855c26b-14df-423d-967b-19122a25867f" processor="mongo:remove-documents">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="0ace5dbf-682e-4265-8fbd-81f200f9bb95" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[1]" mediaType="application/java" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<wsc:consume doc:name="deleteCoin" doc:id="a1073b0c-66d7-461d-9ec8-89c18584d66d" config-ref="Web_Service_Consumer_Config" operation="deleteCoin">
+				<wsc:message >
+					<wsc:body ><![CDATA[#[null]]]></wsc:body>
+					<wsc:headers ><![CDATA[#[%dw 2.0
+output application/xml
+ns ns0 http://training.mulesoft.com/
+  ---
+  "headers": {
+  	ns0#deleteCoinHeader:{
+    	documentID: "12345678901234567890qwer"
+    	}
+  }]]]></wsc:headers>
+				</wsc:message>
+			</wsc:consume>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="not null" doc:id="62b2874d-41b5-4a0a-be40-94efc357d6b2" processor="validation:is-not-null" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="dfe7df14-6ac8-4a83-af92-89c800311cc2" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call doc:name="set variable" doc:id="56a37e57-0d7f-4795-9b8f-06bea8b1f877" processor="set-variable" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d3f8e7d8-7c51-4799-a00d-eb95abe7103b" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call doc:name="validate size" doc:id="b64f7dc8-7476-4beb-afd9-ebcce76bad21" processor="validation:validate-size" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="0ec266b4-fab7-4015-abd2-22681f18f268" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals doc:name="result payload" doc:id="132752e5-37be-45c9-8b39-59d26fcc1477" actual="#[payload.body.deleteCoinResponse.response]" expected="#[&quot;document with id='12345678901234567890qwer' was deleted&quot;]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="deleteCoinDocumentDoesn'tExist" doc:id="53aaf8a7-4f59-4aa4-85e0-324363264112">
+		<munit:enable-flow-sources >
+			<munit:enable-flow-source value="api-main" />
+			<munit:enable-flow-source value="deleteCoin:\soapkit-config" />
+			<munit:enable-flow-source value="deleteCoinSubFlow" />
+			<munit:enable-flow-source value="readCoin:\soapkit-config" />
+			<munit:enable-flow-source value="readCoinSubFlow" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="remove document" doc:id="dd93bc41-f0ff-48de-a297-925aed8e5863" processor="mongo:remove-documents" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="0ace5dbf-682e-4265-8fbd-81f200f9bb95" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[0]" mediaType="application/java" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<wsc:consume operation="deleteCoin" doc:name="deleteCoin" doc:id="1df2cdbc-0e97-4087-ab45-30f3e625270f" config-ref="Web_Service_Consumer_Config" >
+				<wsc:message >
+					<wsc:body ><![CDATA[#[null]]]></wsc:body>
+					<wsc:headers ><![CDATA[#[%dw 2.0
+output application/xml
+ns ns0 http://training.mulesoft.com/
+  ---
+  "headers": {
+  	ns0#deleteCoinHeader:{
+    	documentID: "12345678901234567890qwer"
+    	}
+  }]]]></wsc:headers>
+				</wsc:message>
+			</wsc:consume>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="not null" doc:id="0441a608-9c70-40fb-a9db-03320a3bf332" processor="validation:is-not-null" times="1" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="dfe7df14-6ac8-4a83-af92-89c800311cc2" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call doc:name="set variable" doc:id="05e67c23-a02f-4667-915c-211ed42f8c32" processor="set-variable" times="1" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d3f8e7d8-7c51-4799-a00d-eb95abe7103b" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call doc:name="validate size" doc:id="2ded663e-57fd-4fb5-80ab-036be37b410d" processor="validation:validate-size" times="1" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="0ec266b4-fab7-4015-abd2-22681f18f268" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals doc:name="result payload" doc:id="eb6851a6-55e0-49c4-8103-7831c26c5fbd" actual="#[payload.body.deleteCoinResponse.response]" expected="#[&quot;document with id='12345678901234567890qwer' doesn't exist&quot;]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="testErrorBadRequest(400)" doc:id="397ea602-8861-4c96-8424-00f65d76619d">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="flow reference" doc:id="86b36f6b-a98d-46ba-b61e-209ebc7b3e5a" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="fed1ea91-f8c9-4f06-8e7b-c7257dbb8dfc" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:BAD_REQUEST" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="0b56fbba-66e2-455a-b6ca-8491ee8e0f23" name="deleteCoin:\soapkit-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="transform message 400 error + httpStatus" doc:id="d1b3324e-ab3c-439f-acaa-7c4ee2d30bf4" processor="ee:transform" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="dc342771-4236-4c43-8d30-0846de12cede" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="testErrorUnauthorized(401)" doc:id="ac51b8c5-a0a1-4bcc-bc62-8270a3a6091d">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="flow reference" doc:id="1a933983-6f17-48a9-8346-cff4b5dbd28b" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="fed1ea91-f8c9-4f06-8e7b-c7257dbb8dfc" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:UNAUTHORIZED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="86efdfaf-6171-4296-abfa-be10dded09a1" name="deleteCoin:\soapkit-config" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="transform message 401 error + httpStatus" doc:id="6177ab9e-62b1-408e-af67-993120e627ce" processor="ee:transform" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="9a0e96ab-1c3b-4ac7-99a6-ab808e3f160a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="testErrorForbidden(403)" doc:id="06cc0b8a-c275-4f41-829a-595d45f2d5fd">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="flow reference" doc:id="88a2023c-7e9a-4d4c-aa34-6b95f0ae07b6" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="fed1ea91-f8c9-4f06-8e7b-c7257dbb8dfc" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:FORBIDDEN" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="2c3c3ec5-1ff6-4a56-b26a-cdc5d67a5f00" name="deleteCoin:\soapkit-config" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="transform message 403 error + httpStatus" doc:id="29873fe2-1bb9-400c-a506-9b354aea7b62" processor="ee:transform" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="de6e8252-c72e-4f77-8286-b484bf544ecb" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="testErrorNotFound(404)" doc:id="fbb68949-e597-42b6-984c-d5f5f44f3250">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="flow reference" doc:id="0ca0a15c-d2c4-4b02-893a-8a4fbc3ba206" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="fed1ea91-f8c9-4f06-8e7b-c7257dbb8dfc" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:NOT_FOUND" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="233c82c6-8e0b-47d5-95a3-d5057a783961" name="deleteCoin:\soapkit-config" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="transform message 404 error + httpStatus" doc:id="e5af854d-231a-4410-9497-a66ef13054ff" processor="ee:transform" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="8bff50f7-41dd-4b05-ae39-f2fa24dca739" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="testErrorTimeout(408)" doc:id="bf8b5351-4a10-41a0-9bb9-3e66dfa354c0">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="flow reference" doc:id="1fdb6f33-2aae-4323-865c-4cc279b75214" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="fed1ea91-f8c9-4f06-8e7b-c7257dbb8dfc" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:TIMEOUT" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="918012c3-b9cf-448e-84a4-7cca05ea34b1" name="deleteCoin:\soapkit-config" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="transform message 408 error + httpStatus" doc:id="b138b851-d326-4585-84ef-2456c1002704" processor="ee:transform" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="26fa6600-befa-4700-b1c0-8688fd888ef4" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="testErrorTooManyRequest(429)" doc:id="db52e780-5dfa-4943-b436-1ba316ae5138">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="flow reference" doc:id="13e2fde8-a661-47b1-95ff-8ab7c3b877ae" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="fed1ea91-f8c9-4f06-8e7b-c7257dbb8dfc" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:TOO_MANY_REQUESTS" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="e70375a0-ccb6-43b2-97b4-e36a0072e569" name="deleteCoin:\soapkit-config" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="transform message 429 error + httpStatus" doc:id="1bd3e15d-2c37-44fe-b707-6edde9bbd1f9" processor="ee:transform" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="e5a28682-38e2-467f-89ef-ad17122eb6ec" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="testErrorInternalServerError(500)" doc:id="2fa8842f-06a0-435d-bd18-bf0ab213be2a">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="flow reference" doc:id="93b35a71-8ee2-487f-bc98-bacc2e2671ed" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="fed1ea91-f8c9-4f06-8e7b-c7257dbb8dfc" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:INTERNAL_SERVER_ERROR" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="7b112a89-ccb9-40a2-9b63-abef5a401186" name="deleteCoin:\soapkit-config" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="transform message 500 error + httpStatus" doc:id="9c15ebdd-e147-4d31-9c8d-8e2c2089802f" processor="ee:transform" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="ed166f62-7dd2-4dc1-b169-afa209223fd5" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="testErrorAny" doc:id="3decd3c5-5b73-4184-9922-58826d7af552">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="flow reference" doc:id="789b94ce-6da8-4097-98e9-5cf8d035f54d" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="fed1ea91-f8c9-4f06-8e7b-c7257dbb8dfc" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="EXPRESSION" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="a88e4315-7358-481c-b1ce-96da41b1cf7b" name="deleteCoin:\soapkit-config" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="transform message any error + httpStatus" doc:id="e8f27164-70fa-489f-b4d1-44e0165577b7" processor="ee:transform" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="dd44a64e-41a7-4572-85c8-db994a9c39cd" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
 	<munit:test name="readLowerChoice" doc:id="864b61df-3c04-4f20-808b-928ca47f49b2">
 		<munit:enable-flow-sources >
 			<munit:enable-flow-source value="api-main" />
@@ -33,7 +622,6 @@ http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/
 					<wsc:body ><![CDATA[#[null]]]></wsc:body>
 					<wsc:headers ><![CDATA[#[%dw 2.0
 output application/xml
-
 ns ns0 http://training.mulesoft.com/
   ---
   
@@ -85,7 +673,6 @@ ns ns0 http://training.mulesoft.com/
 					<wsc:body ><![CDATA[#[null]]]></wsc:body>
 					<wsc:headers ><![CDATA[#[%dw 2.0
 output application/xml
-
 ns ns0 http://training.mulesoft.com/
   ---
   
@@ -157,7 +744,6 @@ ns ns0 http://training.mulesoft.com/
       }]]]></wsc:body>
 					<wsc:headers ><![CDATA[#[%dw 2.0
 output application/xml
-
 ns ns0 http://training.mulesoft.com/
   ---
   
@@ -224,7 +810,6 @@ ns ns0 http://training.mulesoft.com/
       }]]]></wsc:body>
 					<wsc:headers><![CDATA[#[%dw 2.0
 output application/xml
-
 ns ns0 http://training.mulesoft.com/
   ---
   

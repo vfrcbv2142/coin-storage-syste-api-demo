@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit-soap="http://www.mulesoft.org/schema/mule/apikit-soap" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/apikit-soap http://www.mulesoft.org/schema/mule/apikit-soap/current/mule-apikit-soap.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-    <flow name="api-main" doc:id="9a3c6748-c9c3-419d-98a0-a99b8c8a4adc">
-        <http:listener path="/CoinStorageService" config-ref="api-httpListenerConfig">
+    <flow name="api-main">
+        <http:listener path="${secure::listener.path}" config-ref="api-httpListenerConfig">
             <http:response statusCode="#[vars.httpStatus default 200]">
                 <http:headers><![CDATA[#[attributes.protocolHeaders default {}]]]></http:headers>
             </http:response>
@@ -36,7 +36,7 @@
 		<error-handler ref="globalErrorHandler" />
     </flow>
    
-    <flow name="deleteCoin:\soapkit-config">
+    <flow name="deleteCoin:\soapkit-config" doc:id="2ed1a8fb-823c-42c9-8ec2-2cf2d3ca73c6">
 		    <flow-ref doc:name="Flow Reference" doc:id="fed1ea91-f8c9-4f06-8e7b-c7257dbb8dfc" name="deleteCoinSubFlow"/>
 		<error-handler ref="globalErrorHandler" />
     </flow>
