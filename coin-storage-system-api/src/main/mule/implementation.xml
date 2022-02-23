@@ -141,7 +141,10 @@ else
 				<ee:set-variable variableName="httpStatus" ><![CDATA[201]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<logger level="INFO" doc:name="result" doc:id="188bf084-883f-4811-a527-6649120df82f" message="#[output application/xml&#10;ns ns0 http://training.mulesoft.com/&#10;---&#10;payload.ns0#updateCoinResponse]"/>
+		<logger level="INFO" doc:name="result" doc:id="188bf084-883f-4811-a527-6649120df82f" message="#[output application/xml
+&#10;ns ns0 http://training.mulesoft.com/
+&#10;---
+&#10;payload.ns0#updateCoinResponse]"/>
 	
 
 </sub-flow>
@@ -178,7 +181,10 @@ else
 				<ee:set-variable variableName="httpStatus" ><![CDATA[201]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<logger level="INFO" doc:name="result" doc:id="ba7f1553-8c79-47e7-82cb-317e9c21e5d1" message="#[output application/xml&#10;ns ns0 http://training.mulesoft.com/&#10;---&#10;payload.ns0#deleteCoinResponse]"/>
+		<logger level="INFO" doc:name="result" doc:id="ba7f1553-8c79-47e7-82cb-317e9c21e5d1" message="#[output application/xml
+&#10;ns ns0 http://training.mulesoft.com/
+&#10;---
+&#10;payload.ns0#deleteCoinResponse]"/>
 
 </sub-flow>
 

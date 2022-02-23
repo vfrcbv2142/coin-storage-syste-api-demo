@@ -22,11 +22,12 @@
         </apikit-soap:router>
 		<error-handler ref="globalErrorHandler" />
     </flow>
-    <flow name="createCoin:\soapkit-config">
+    <flow name="createCoin:\soapkit-config" doc:id="040e14b0-ae0d-4088-b392-26062d7d93d7">
 		  <flow-ref doc:name="Flow Reference" doc:id="b751d30b-43cf-4d4e-bfae-3add8484738f" name="createCoinSubFlow"/>
 		<error-handler ref="globalErrorHandler" />
     </flow>
-    <flow name="readCoin:\soapkit-config">
+    <flow name="readCoin:\soapkit-config" doc:id="d9270922-6732-4132-aa4a-b9db9779a9a7">
+
         <flow-ref doc:name="Flow Reference" doc:id="a0a92048-8b95-4cb9-b604-33840e1b71da" name="readCoinSubFlow"/>
 		<error-handler ref="globalErrorHandler" />
     </flow>
